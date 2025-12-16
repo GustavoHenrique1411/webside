@@ -1,8 +1,9 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { CheckCircle2, Cloud, LineChart, Smartphone, ShieldCheck, Headset, Rocket, Cpu, ChevronRight } from "lucide-react";
+import { CheckCircle2, Cloud, LineChart, Smartphone, ShieldCheck, Headset, Rocket, Cpu, ChevronRight, Lock } from "lucide-react";
 
 const container = {
   hidden: { opacity: 0, y: 20 },
@@ -71,6 +72,8 @@ const TestimonialCard = ({ quote, author }: { quote: string; author: string }) =
 );
 
 export default function WebsideLanding() {
+  const navigate = useNavigate();
+
   return (
     <div className="min-h-screen w-full bg-gradient-hero">
       {/* Navbar */}
@@ -82,7 +85,6 @@ export default function WebsideLanding() {
               alt="Webside Sistemas" 
               className="h-8 w-auto object-contain" 
             />
-            <span className="hidden md:inline text-white/80 text-sm">Tecnologia para Postos de Combustíveis</span>
           </div>
           <nav className="hidden md:flex items-center gap-6 text-white/80 text-sm">
             <a href="#produto" className="hover:text-white transition-colors">Produto</a>
@@ -92,6 +94,15 @@ export default function WebsideLanding() {
             <a href="#contato" className="hover:text-white transition-colors">Contato</a>
           </nav>
           <div className="flex items-center gap-2">
+            <Button 
+              variant="ghost" 
+              size="sm"
+              className="text-white/80 hover:text-white hover:bg-white/10"
+              onClick={() => navigate('/login')}
+            >
+              <Lock className="w-4 h-4 mr-2" />
+              Área Restrita
+            </Button>
             <Button variant="cta" size="sm">
               Solicitar Demonstração
             </Button>
