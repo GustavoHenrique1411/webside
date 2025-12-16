@@ -14,6 +14,8 @@ const AdminDashboard: React.FC = () => {
       description: 'Gerenciar leads e prospects',
       icon: Users,
       path: '/admin/leads',
+      color: 'text-blue-600',
+      bgColor: 'bg-blue-50',
       count: 24
     },
     {
@@ -21,6 +23,8 @@ const AdminDashboard: React.FC = () => {
       description: 'Criar e gerenciar propostas',
       icon: FileText,
       path: '/admin/orcamentos',
+      color: 'text-green-600',
+      bgColor: 'bg-green-50',
       count: 8
     },
     {
@@ -28,6 +32,8 @@ const AdminDashboard: React.FC = () => {
       description: 'Acompanhar pedidos de venda',
       icon: ShoppingCart,
       path: '/admin/pedidos',
+      color: 'text-orange-600',
+      bgColor: 'bg-orange-50',
       count: 12
     },
     {
@@ -35,6 +41,8 @@ const AdminDashboard: React.FC = () => {
       description: 'Controle financeiro',
       icon: DollarSign,
       path: '/admin/financeiro',
+      color: 'text-emerald-600',
+      bgColor: 'bg-emerald-50',
       count: 3
     },
     {
@@ -42,6 +50,8 @@ const AdminDashboard: React.FC = () => {
       description: 'Gerenciar base de clientes',
       icon: Building,
       path: '/admin/clientes',
+      color: 'text-purple-600',
+      bgColor: 'bg-purple-50',
       count: 156
     },
     {
@@ -49,6 +59,8 @@ const AdminDashboard: React.FC = () => {
       description: 'Análises e métricas',
       icon: BarChart3,
       path: '/admin/relatorios',
+      color: 'text-red-600',
+      bgColor: 'bg-red-50',
       count: 6
     }
   ];
@@ -58,94 +70,94 @@ const AdminDashboard: React.FC = () => {
       <div className="space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-2xl font-bold text-white">Dashboard</h1>
-          <p className="text-white/70">Bem-vindo ao painel administrativo</p>
+          <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
+          <p className="text-muted-foreground">Bem-vindo ao painel administrativo</p>
         </div>
 
         {/* Quick Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Card className="bg-white/10 border-white/10">
+          <Card>
             <CardContent className="pt-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-white/70">Receita Mensal</p>
-                  <p className="text-2xl font-bold text-white">R$ 1.2M</p>
+                  <p className="text-sm text-muted-foreground">Receita Mensal</p>
+                  <p className="text-2xl font-bold text-foreground">R$ 1.2M</p>
                 </div>
-                <div className="p-2 rounded-full bg-accent/20">
-                  <TrendingUp className="h-5 w-5 text-accent" />
+                <div className="p-2 rounded-full bg-green-100">
+                  <TrendingUp className="h-5 w-5 text-green-600" />
                 </div>
               </div>
-              <p className="text-xs text-accent mt-2">+18% vs mês anterior</p>
+              <p className="text-xs text-green-600 mt-2">+18% vs mês anterior</p>
             </CardContent>
           </Card>
-          <Card className="bg-white/10 border-white/10">
+          <Card>
             <CardContent className="pt-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-white/70">Novos Leads</p>
-                  <p className="text-2xl font-bold text-white">24</p>
+                  <p className="text-sm text-muted-foreground">Novos Leads</p>
+                  <p className="text-2xl font-bold text-foreground">24</p>
                 </div>
-                <div className="p-2 rounded-full bg-accent/20">
-                  <Users className="h-5 w-5 text-accent" />
+                <div className="p-2 rounded-full bg-blue-100">
+                  <Users className="h-5 w-5 text-blue-600" />
                 </div>
               </div>
-              <p className="text-xs text-accent mt-2">+12% este mês</p>
+              <p className="text-xs text-blue-600 mt-2">+12% este mês</p>
             </CardContent>
           </Card>
-          <Card className="bg-white/10 border-white/10">
+          <Card>
             <CardContent className="pt-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-white/70">Pedidos Ativos</p>
-                  <p className="text-2xl font-bold text-white">12</p>
+                  <p className="text-sm text-muted-foreground">Pedidos Ativos</p>
+                  <p className="text-2xl font-bold text-foreground">12</p>
                 </div>
-                <div className="p-2 rounded-full bg-accent/20">
-                  <ShoppingCart className="h-5 w-5 text-accent" />
+                <div className="p-2 rounded-full bg-orange-100">
+                  <ShoppingCart className="h-5 w-5 text-orange-600" />
                 </div>
               </div>
-              <p className="text-xs text-white/60 mt-2">5 em produção</p>
+              <p className="text-xs text-muted-foreground mt-2">5 em produção</p>
             </CardContent>
           </Card>
-          <Card className="bg-white/10 border-white/10">
+          <Card>
             <CardContent className="pt-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-white/70">Taxa Conversão</p>
-                  <p className="text-2xl font-bold text-white">42%</p>
+                  <p className="text-sm text-muted-foreground">Taxa Conversão</p>
+                  <p className="text-2xl font-bold text-foreground">42%</p>
                 </div>
-                <div className="p-2 rounded-full bg-accent/20">
-                  <BarChart3 className="h-5 w-5 text-accent" />
+                <div className="p-2 rounded-full bg-purple-100">
+                  <BarChart3 className="h-5 w-5 text-purple-600" />
                 </div>
               </div>
-              <p className="text-xs text-accent mt-2">+5% vs mês anterior</p>
+              <p className="text-xs text-green-600 mt-2">+5% vs mês anterior</p>
             </CardContent>
           </Card>
         </div>
 
         {/* Quick Access Cards */}
         <div>
-          <h2 className="text-lg font-semibold text-white mb-4">Acesso Rápido</h2>
+          <h2 className="text-lg font-semibold text-foreground mb-4">Acesso Rápido</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {menuItems.map((item) => {
               const Icon = item.icon;
               return (
                 <Card
                   key={item.path}
-                  className="cursor-pointer bg-white/10 border-white/10 hover:bg-white/20 transition-all duration-300 hover:-translate-y-1"
+                  className="cursor-pointer hover:shadow-md transition-all duration-300 hover:-translate-y-1"
                   onClick={() => navigate(item.path)}
                 >
                   <CardHeader className="pb-2">
                     <div className="flex items-center justify-between">
-                      <div className="w-10 h-10 rounded-xl bg-accent/20 flex items-center justify-center">
-                        <Icon className="h-5 w-5 text-accent" />
+                      <div className={`w-10 h-10 rounded-xl ${item.bgColor} flex items-center justify-center`}>
+                        <Icon className={`h-5 w-5 ${item.color}`} />
                       </div>
-                      <span className="text-2xl font-bold text-accent">{item.count}</span>
+                      <span className={`text-2xl font-bold ${item.color}`}>{item.count}</span>
                     </div>
-                    <CardTitle className="text-base mt-2 text-white">{item.title}</CardTitle>
-                    <CardDescription className="text-white/60">{item.description}</CardDescription>
+                    <CardTitle className="text-base mt-2">{item.title}</CardTitle>
+                    <CardDescription>{item.description}</CardDescription>
                   </CardHeader>
                   <CardContent className="pt-0">
-                    <Button variant="ghost" className="w-full justify-between p-0 h-auto text-white/70 hover:text-white hover:bg-transparent">
+                    <Button variant="ghost" className="w-full justify-between p-0 h-auto text-muted-foreground hover:text-foreground">
                       Ver todos <ChevronRight className="h-4 w-4" />
                     </Button>
                   </CardContent>
@@ -156,25 +168,25 @@ const AdminDashboard: React.FC = () => {
         </div>
 
         {/* Recent Activity */}
-        <Card className="bg-white/10 border-white/10">
+        <Card>
           <CardHeader>
-            <CardTitle className="text-white">Atividades Recentes</CardTitle>
+            <CardTitle>Atividades Recentes</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               {[
-                { acao: 'Novo lead cadastrado', detalhe: 'Posto Central - João Silva', tempo: '5 min atrás', cor: 'bg-accent' },
-                { acao: 'Orçamento aprovado', detalhe: 'ORC-002 - Rede Combustível', tempo: '1 hora atrás', cor: 'bg-accent' },
-                { acao: 'Pedido em produção', detalhe: 'PED-004 - Posto Shell', tempo: '2 horas atrás', cor: 'bg-accent' },
-                { acao: 'Pagamento recebido', detalhe: 'FIN-001 - R$ 45.000,00', tempo: '3 horas atrás', cor: 'bg-accent' },
+                { acao: 'Novo lead cadastrado', detalhe: 'Posto Central - João Silva', tempo: '5 min atrás', cor: 'bg-blue-500' },
+                { acao: 'Orçamento aprovado', detalhe: 'ORC-002 - Rede Combustível', tempo: '1 hora atrás', cor: 'bg-green-500' },
+                { acao: 'Pedido em produção', detalhe: 'PED-004 - Posto Shell', tempo: '2 horas atrás', cor: 'bg-orange-500' },
+                { acao: 'Pagamento recebido', detalhe: 'FIN-001 - R$ 45.000,00', tempo: '3 horas atrás', cor: 'bg-emerald-500' },
               ].map((atividade, idx) => (
                 <div key={idx} className="flex items-center gap-4">
                   <div className={`w-2 h-2 rounded-full ${atividade.cor}`} />
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-white">{atividade.acao}</p>
-                    <p className="text-xs text-white/60">{atividade.detalhe}</p>
+                    <p className="text-sm font-medium">{atividade.acao}</p>
+                    <p className="text-xs text-muted-foreground">{atividade.detalhe}</p>
                   </div>
-                  <span className="text-xs text-white/60">{atividade.tempo}</span>
+                  <span className="text-xs text-muted-foreground">{atividade.tempo}</span>
                 </div>
               ))}
             </div>

@@ -107,7 +107,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
 
         {/* Main Content */}
         <main className="flex-1 p-6 pb-24 md:pb-6">
-          <div className="bg-white/10 backdrop-blur border border-white/10 rounded-2xl p-6 min-h-[calc(100vh-120px)]">
+          <div className="bg-white rounded-2xl p-6 min-h-[calc(100vh-120px)] shadow-lg">
             {children}
           </div>
         </main>
