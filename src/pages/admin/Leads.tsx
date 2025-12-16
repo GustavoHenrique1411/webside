@@ -15,10 +15,10 @@ const leadsData = [
 ];
 
 const statusColors: Record<string, string> = {
-  'Novo': 'bg-blue-100 text-blue-800',
-  'Contatado': 'bg-yellow-100 text-yellow-800',
-  'Qualificado': 'bg-green-100 text-green-800',
-  'Proposta': 'bg-purple-100 text-purple-800',
+  'Novo': 'bg-blue-500/20 text-blue-300 border-blue-500/30',
+  'Contatado': 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30',
+  'Qualificado': 'bg-green-500/20 text-green-300 border-green-500/30',
+  'Proposta': 'bg-purple-500/20 text-purple-300 border-purple-500/30',
 };
 
 const Leads: React.FC = () => {
@@ -35,8 +35,8 @@ const Leads: React.FC = () => {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Leads</h1>
-            <p className="text-muted-foreground">Gerencie seus leads e prospects</p>
+            <h1 className="text-2xl font-bold text-white">Leads</h1>
+            <p className="text-white/70">Gerencie seus leads e prospects</p>
           </div>
           <Button className="bg-accent hover:bg-accent/90 text-accent-foreground">
             <Plus className="h-4 w-4 mr-2" />
@@ -46,66 +46,66 @@ const Leads: React.FC = () => {
 
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Card>
+          <Card className="bg-white/10 border-white/10">
             <CardContent className="pt-4">
               <div className="text-2xl font-bold text-accent">24</div>
-              <p className="text-sm text-muted-foreground">Total de Leads</p>
+              <p className="text-sm text-white/70">Total de Leads</p>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="bg-white/10 border-white/10">
             <CardContent className="pt-4">
-              <div className="text-2xl font-bold text-blue-600">8</div>
-              <p className="text-sm text-muted-foreground">Novos</p>
+              <div className="text-2xl font-bold text-blue-400">8</div>
+              <p className="text-sm text-white/70">Novos</p>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="bg-white/10 border-white/10">
             <CardContent className="pt-4">
-              <div className="text-2xl font-bold text-green-600">12</div>
-              <p className="text-sm text-muted-foreground">Qualificados</p>
+              <div className="text-2xl font-bold text-green-400">12</div>
+              <p className="text-sm text-white/70">Qualificados</p>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="bg-white/10 border-white/10">
             <CardContent className="pt-4">
-              <div className="text-2xl font-bold text-purple-600">4</div>
-              <p className="text-sm text-muted-foreground">Em Proposta</p>
+              <div className="text-2xl font-bold text-purple-400">4</div>
+              <p className="text-sm text-white/70">Em Proposta</p>
             </CardContent>
           </Card>
         </div>
 
         {/* Search */}
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/50" />
           <Input 
             placeholder="Buscar leads..." 
-            className="pl-10"
+            className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-white/50"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
 
         {/* Leads List */}
-        <Card>
+        <Card className="bg-white/10 border-white/10">
           <CardHeader>
-            <CardTitle>Lista de Leads</CardTitle>
+            <CardTitle className="text-white">Lista de Leads</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               {filteredLeads.map((lead) => (
-                <div key={lead.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                <div key={lead.id} className="flex items-center justify-between p-4 border border-white/10 rounded-lg hover:bg-white/5 transition-colors">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-1">
-                      <span className="font-medium text-foreground">{lead.nome}</span>
+                      <span className="font-medium text-white">{lead.nome}</span>
                       <Badge className={statusColors[lead.status]}>{lead.status}</Badge>
                     </div>
-                    <p className="text-sm text-muted-foreground">{lead.empresa}</p>
-                    <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
+                    <p className="text-sm text-white/70">{lead.empresa}</p>
+                    <div className="flex items-center gap-4 mt-2 text-sm text-white/60">
                       <span className="flex items-center gap-1"><Phone className="h-3 w-3" /> {lead.telefone}</span>
                       <span className="flex items-center gap-1"><Mail className="h-3 w-3" /> {lead.email}</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Badge variant="outline">{lead.origem}</Badge>
-                    <Button variant="ghost" size="icon">
+                    <Badge variant="outline" className="border-white/20 text-white/70">{lead.origem}</Badge>
+                    <Button variant="ghost" size="icon" className="text-white/70 hover:text-white hover:bg-white/10">
                       <MoreHorizontal className="h-4 w-4" />
                     </Button>
                   </div>

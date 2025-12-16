@@ -15,8 +15,8 @@ const clientesData = [
 ];
 
 const statusColors: Record<string, string> = {
-  'Ativo': 'bg-green-100 text-green-800',
-  'Inativo': 'bg-gray-100 text-gray-800',
+  'Ativo': 'bg-green-500/20 text-green-300 border-green-500/30',
+  'Inativo': 'bg-gray-500/20 text-gray-300 border-gray-500/30',
 };
 
 const Clientes: React.FC = () => {
@@ -34,8 +34,8 @@ const Clientes: React.FC = () => {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Clientes</h1>
-            <p className="text-muted-foreground">Gerencie sua base de clientes</p>
+            <h1 className="text-2xl font-bold text-white">Clientes</h1>
+            <p className="text-white/70">Gerencie sua base de clientes</p>
           </div>
           <Button className="bg-accent hover:bg-accent/90 text-accent-foreground">
             <Plus className="h-4 w-4 mr-2" />
@@ -45,63 +45,63 @@ const Clientes: React.FC = () => {
 
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Card>
+          <Card className="bg-white/10 border-white/10">
             <CardContent className="pt-4">
               <div className="text-2xl font-bold text-accent">156</div>
-              <p className="text-sm text-muted-foreground">Total de Clientes</p>
+              <p className="text-sm text-white/70">Total de Clientes</p>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="bg-white/10 border-white/10">
             <CardContent className="pt-4">
-              <div className="text-2xl font-bold text-green-600">142</div>
-              <p className="text-sm text-muted-foreground">Ativos</p>
+              <div className="text-2xl font-bold text-green-400">142</div>
+              <p className="text-sm text-white/70">Ativos</p>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="bg-white/10 border-white/10">
             <CardContent className="pt-4">
-              <div className="text-2xl font-bold text-gray-600">14</div>
-              <p className="text-sm text-muted-foreground">Inativos</p>
+              <div className="text-2xl font-bold text-gray-400">14</div>
+              <p className="text-sm text-white/70">Inativos</p>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="bg-white/10 border-white/10">
             <CardContent className="pt-4">
               <div className="text-2xl font-bold text-accent">+8%</div>
-              <p className="text-sm text-muted-foreground">Crescimento</p>
+              <p className="text-sm text-white/70">Crescimento</p>
             </CardContent>
           </Card>
         </div>
 
         {/* Search */}
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/50" />
           <Input 
             placeholder="Buscar clientes por nome, CNPJ ou cidade..." 
-            className="pl-10"
+            className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-white/50"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
 
         {/* Clientes List */}
-        <Card>
+        <Card className="bg-white/10 border-white/10">
           <CardHeader>
-            <CardTitle>Lista de Clientes</CardTitle>
+            <CardTitle className="text-white">Lista de Clientes</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               {filteredClientes.map((cliente) => (
-                <div key={cliente.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                <div key={cliente.id} className="flex items-center justify-between p-4 border border-white/10 rounded-lg hover:bg-white/5 transition-colors">
                   <div className="flex items-center gap-4">
-                    <div className="p-3 rounded-xl bg-accent/10">
+                    <div className="p-3 rounded-xl bg-accent/20">
                       <Building2 className="h-6 w-6 text-accent" />
                     </div>
                     <div>
                       <div className="flex items-center gap-3 mb-1">
-                        <span className="font-medium text-foreground">{cliente.nome}</span>
+                        <span className="font-medium text-white">{cliente.nome}</span>
                         <Badge className={statusColors[cliente.status]}>{cliente.status}</Badge>
                       </div>
-                      <p className="text-sm text-muted-foreground">{cliente.cnpj} • {cliente.contato}</p>
-                      <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-muted-foreground">
+                      <p className="text-sm text-white/60">{cliente.cnpj} • {cliente.contato}</p>
+                      <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-white/60">
                         <span className="flex items-center gap-1"><Phone className="h-3 w-3" /> {cliente.telefone}</span>
                         <span className="flex items-center gap-1"><Mail className="h-3 w-3" /> {cliente.email}</span>
                         <span className="flex items-center gap-1"><MapPin className="h-3 w-3" /> {cliente.cidade}</span>
@@ -109,8 +109,8 @@ const Clientes: React.FC = () => {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm">Ver</Button>
-                    <Button variant="ghost" size="icon">
+                    <Button variant="outline" size="sm" className="border-white/20 text-white hover:bg-white/10">Ver</Button>
+                    <Button variant="ghost" size="icon" className="text-white/70 hover:text-white hover:bg-white/10">
                       <MoreHorizontal className="h-4 w-4" />
                     </Button>
                   </div>

@@ -33,9 +33,9 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
   };
 
   return (
-    <div className="min-h-screen bg-muted/30">
+    <div className="min-h-screen bg-gradient-hero">
       {/* Header */}
-      <header className="sticky top-0 z-40 border-b bg-background">
+      <header className="sticky top-0 z-40 border-b border-white/10 bg-primary/80 backdrop-blur">
         <div className="flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-3">
             <img
@@ -44,10 +44,14 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
               className="h-8 w-auto object-contain cursor-pointer"
               onClick={() => navigate('/admin/dashboard')}
             />
-            <span className="hidden md:inline text-muted-foreground text-sm">|</span>
-            <span className="hidden md:inline text-foreground font-medium">{title}</span>
+            <span className="hidden md:inline text-white/60 text-sm">|</span>
+            <span className="hidden md:inline text-white font-medium">{title}</span>
           </div>
-          <Button variant="ghost" onClick={handleLogout} className="text-muted-foreground hover:text-foreground">
+          <Button 
+            variant="ghost" 
+            onClick={handleLogout} 
+            className="text-white/80 hover:text-white hover:bg-white/10"
+          >
             <LogOut className="h-4 w-4 mr-2" />
             Sair
           </Button>
@@ -56,7 +60,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
 
       <div className="flex">
         {/* Sidebar */}
-        <aside className="hidden md:flex w-64 flex-col border-r bg-background min-h-[calc(100vh-57px)]">
+        <aside className="hidden md:flex w-64 flex-col border-r border-white/10 bg-white/5 backdrop-blur min-h-[calc(100vh-57px)]">
           <nav className="flex-1 p-4 space-y-1">
             {menuItems.map((item) => {
               const Icon = item.icon;
@@ -68,7 +72,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
                   className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
                     isActive 
                       ? 'bg-accent text-accent-foreground' 
-                      : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                      : 'text-white/70 hover:bg-white/10 hover:text-white'
                   }`}
                 >
                   <Icon className="h-4 w-4" />
@@ -80,7 +84,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
         </aside>
 
         {/* Mobile Bottom Nav */}
-        <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-background border-t z-40 px-2 py-2">
+        <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-primary border-t border-white/10 z-40 px-2 py-2">
           <div className="flex justify-around">
             {menuItems.slice(0, 5).map((item) => {
               const Icon = item.icon;
@@ -90,7 +94,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
                   key={item.path}
                   onClick={() => navigate(item.path)}
                   className={`flex flex-col items-center gap-1 p-2 rounded-lg ${
-                    isActive ? 'text-accent' : 'text-muted-foreground'
+                    isActive ? 'text-accent' : 'text-white/70'
                   }`}
                 >
                   <Icon className="h-5 w-5" />
@@ -103,7 +107,9 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
 
         {/* Main Content */}
         <main className="flex-1 p-6 pb-24 md:pb-6">
-          {children}
+          <div className="bg-white/10 backdrop-blur border border-white/10 rounded-2xl p-6 min-h-[calc(100vh-120px)]">
+            {children}
+          </div>
         </main>
       </div>
     </div>

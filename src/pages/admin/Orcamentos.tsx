@@ -15,10 +15,10 @@ const orcamentosData = [
 ];
 
 const statusColors: Record<string, string> = {
-  'Aguardando': 'bg-yellow-100 text-yellow-800',
-  'Aprovado': 'bg-green-100 text-green-800',
-  'Revisão': 'bg-blue-100 text-blue-800',
-  'Recusado': 'bg-red-100 text-red-800',
+  'Aguardando': 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30',
+  'Aprovado': 'bg-green-500/20 text-green-300 border-green-500/30',
+  'Revisão': 'bg-blue-500/20 text-blue-300 border-blue-500/30',
+  'Recusado': 'bg-red-500/20 text-red-300 border-red-500/30',
 };
 
 const Orcamentos: React.FC = () => {
@@ -38,8 +38,8 @@ const Orcamentos: React.FC = () => {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Orçamentos</h1>
-            <p className="text-muted-foreground">Gerencie propostas comerciais</p>
+            <h1 className="text-2xl font-bold text-white">Orçamentos</h1>
+            <p className="text-white/70">Gerencie propostas comerciais</p>
           </div>
           <Button className="bg-accent hover:bg-accent/90 text-accent-foreground">
             <Plus className="h-4 w-4 mr-2" />
@@ -49,66 +49,66 @@ const Orcamentos: React.FC = () => {
 
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Card>
+          <Card className="bg-white/10 border-white/10">
             <CardContent className="pt-4">
               <div className="text-2xl font-bold text-accent">18</div>
-              <p className="text-sm text-muted-foreground">Total</p>
+              <p className="text-sm text-white/70">Total</p>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="bg-white/10 border-white/10">
             <CardContent className="pt-4">
-              <div className="text-2xl font-bold text-yellow-600">8</div>
-              <p className="text-sm text-muted-foreground">Aguardando</p>
+              <div className="text-2xl font-bold text-yellow-400">8</div>
+              <p className="text-sm text-white/70">Aguardando</p>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="bg-white/10 border-white/10">
             <CardContent className="pt-4">
-              <div className="text-2xl font-bold text-green-600">6</div>
-              <p className="text-sm text-muted-foreground">Aprovados</p>
+              <div className="text-2xl font-bold text-green-400">6</div>
+              <p className="text-sm text-white/70">Aprovados</p>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="bg-white/10 border-white/10">
             <CardContent className="pt-4">
-              <div className="text-2xl font-bold text-foreground">R$ 563k</div>
-              <p className="text-sm text-muted-foreground">Valor Total</p>
+              <div className="text-2xl font-bold text-white">R$ 563k</div>
+              <p className="text-sm text-white/70">Valor Total</p>
             </CardContent>
           </Card>
         </div>
 
         {/* Search */}
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/50" />
           <Input 
             placeholder="Buscar orçamentos..." 
-            className="pl-10"
+            className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-white/50"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
 
         {/* Orcamentos List */}
-        <Card>
+        <Card className="bg-white/10 border-white/10">
           <CardHeader>
-            <CardTitle>Lista de Orçamentos</CardTitle>
+            <CardTitle className="text-white">Lista de Orçamentos</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               {filteredOrcamentos.map((orc) => (
-                <div key={orc.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                <div key={orc.id} className="flex items-center justify-between p-4 border border-white/10 rounded-lg hover:bg-white/5 transition-colors">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-1">
-                      <span className="font-mono text-sm text-muted-foreground">{orc.id}</span>
-                      <span className="font-medium text-foreground">{orc.cliente}</span>
+                      <span className="font-mono text-sm text-white/60">{orc.id}</span>
+                      <span className="font-medium text-white">{orc.cliente}</span>
                       <Badge className={statusColors[orc.status]}>{orc.status}</Badge>
                     </div>
-                    <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-4 mt-2 text-sm text-white/60">
                       <span className="flex items-center gap-1"><DollarSign className="h-3 w-3" /> {formatCurrency(orc.valor)}</span>
                       <span className="flex items-center gap-1"><Calendar className="h-3 w-3" /> Validade: {orc.validade}</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm">Ver</Button>
-                    <Button variant="ghost" size="icon">
+                    <Button variant="outline" size="sm" className="border-white/20 text-white hover:bg-white/10">Ver</Button>
+                    <Button variant="ghost" size="icon" className="text-white/70 hover:text-white hover:bg-white/10">
                       <MoreHorizontal className="h-4 w-4" />
                     </Button>
                   </div>

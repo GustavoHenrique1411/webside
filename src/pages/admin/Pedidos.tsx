@@ -15,10 +15,10 @@ const pedidosData = [
 ];
 
 const statusColors: Record<string, string> = {
-  'Aguardando': 'bg-yellow-100 text-yellow-800',
-  'Em Produção': 'bg-blue-100 text-blue-800',
-  'Em Trânsito': 'bg-purple-100 text-purple-800',
-  'Entregue': 'bg-green-100 text-green-800',
+  'Aguardando': 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30',
+  'Em Produção': 'bg-blue-500/20 text-blue-300 border-blue-500/30',
+  'Em Trânsito': 'bg-purple-500/20 text-purple-300 border-purple-500/30',
+  'Entregue': 'bg-green-500/20 text-green-300 border-green-500/30',
 };
 
 const Pedidos: React.FC = () => {
@@ -38,8 +38,8 @@ const Pedidos: React.FC = () => {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Pedidos</h1>
-            <p className="text-muted-foreground">Acompanhe os pedidos de venda</p>
+            <h1 className="text-2xl font-bold text-white">Pedidos</h1>
+            <p className="text-white/70">Acompanhe os pedidos de venda</p>
           </div>
           <Button className="bg-accent hover:bg-accent/90 text-accent-foreground">
             <Plus className="h-4 w-4 mr-2" />
@@ -49,66 +49,66 @@ const Pedidos: React.FC = () => {
 
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Card>
+          <Card className="bg-white/10 border-white/10">
             <CardContent className="pt-4">
               <div className="text-2xl font-bold text-accent">32</div>
-              <p className="text-sm text-muted-foreground">Total</p>
+              <p className="text-sm text-white/70">Total</p>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="bg-white/10 border-white/10">
             <CardContent className="pt-4">
-              <div className="text-2xl font-bold text-blue-600">12</div>
-              <p className="text-sm text-muted-foreground">Em Produção</p>
+              <div className="text-2xl font-bold text-blue-400">12</div>
+              <p className="text-sm text-white/70">Em Produção</p>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="bg-white/10 border-white/10">
             <CardContent className="pt-4">
-              <div className="text-2xl font-bold text-purple-600">5</div>
-              <p className="text-sm text-muted-foreground">Em Trânsito</p>
+              <div className="text-2xl font-bold text-purple-400">5</div>
+              <p className="text-sm text-white/70">Em Trânsito</p>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="bg-white/10 border-white/10">
             <CardContent className="pt-4">
-              <div className="text-2xl font-bold text-green-600">15</div>
-              <p className="text-sm text-muted-foreground">Entregues</p>
+              <div className="text-2xl font-bold text-green-400">15</div>
+              <p className="text-sm text-white/70">Entregues</p>
             </CardContent>
           </Card>
         </div>
 
         {/* Search */}
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/50" />
           <Input 
             placeholder="Buscar pedidos..." 
-            className="pl-10"
+            className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-white/50"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
 
         {/* Pedidos List */}
-        <Card>
+        <Card className="bg-white/10 border-white/10">
           <CardHeader>
-            <CardTitle>Lista de Pedidos</CardTitle>
+            <CardTitle className="text-white">Lista de Pedidos</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               {filteredPedidos.map((ped) => (
-                <div key={ped.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                <div key={ped.id} className="flex items-center justify-between p-4 border border-white/10 rounded-lg hover:bg-white/5 transition-colors">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-1">
-                      <span className="font-mono text-sm text-muted-foreground">{ped.id}</span>
-                      <span className="font-medium text-foreground">{ped.cliente}</span>
+                      <span className="font-mono text-sm text-white/60">{ped.id}</span>
+                      <span className="font-medium text-white">{ped.cliente}</span>
                       <Badge className={statusColors[ped.status]}>{ped.status}</Badge>
                     </div>
-                    <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-4 mt-2 text-sm text-white/60">
                       <span className="flex items-center gap-1"><Package className="h-3 w-3" /> {formatCurrency(ped.valor)}</span>
                       <span className="flex items-center gap-1"><Truck className="h-3 w-3" /> Previsão: {ped.previsao}</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm">Detalhes</Button>
-                    <Button variant="ghost" size="icon">
+                    <Button variant="outline" size="sm" className="border-white/20 text-white hover:bg-white/10">Detalhes</Button>
+                    <Button variant="ghost" size="icon" className="text-white/70 hover:text-white hover:bg-white/10">
                       <MoreHorizontal className="h-4 w-4" />
                     </Button>
                   </div>
