@@ -10,36 +10,48 @@ const relatoriosDisponiveis = [
     titulo: 'Relatório de Vendas', 
     descricao: 'Análise completa de vendas por período, cliente e produto',
     icon: TrendingUp,
+    color: 'text-green-600',
+    bgColor: 'bg-green-50'
   },
   { 
     id: 'clientes', 
     titulo: 'Relatório de Clientes', 
     descricao: 'Base de clientes, crescimento e análise de churn',
     icon: Users,
+    color: 'text-blue-600',
+    bgColor: 'bg-blue-50'
   },
   { 
     id: 'financeiro', 
     titulo: 'DRE - Demonstrativo de Resultados', 
     descricao: 'Receitas, despesas e resultado operacional',
     icon: DollarSign,
+    color: 'text-emerald-600',
+    bgColor: 'bg-emerald-50'
   },
   { 
     id: 'pedidos', 
     titulo: 'Relatório de Pedidos', 
     descricao: 'Status de pedidos, entregas e prazos',
     icon: Package,
+    color: 'text-orange-600',
+    bgColor: 'bg-orange-50'
   },
   { 
     id: 'leads', 
     titulo: 'Funil de Vendas', 
     descricao: 'Conversão de leads por etapa do funil',
     icon: BarChart3,
+    color: 'text-purple-600',
+    bgColor: 'bg-purple-50'
   },
   { 
     id: 'mensal', 
     titulo: 'Resumo Mensal', 
     descricao: 'Visão geral consolidada do mês',
     icon: Calendar,
+    color: 'text-red-600',
+    bgColor: 'bg-red-50'
   },
 ];
 
@@ -49,62 +61,62 @@ const Relatorios: React.FC = () => {
       <div className="space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-2xl font-bold text-white">Relatórios</h1>
-          <p className="text-white/70">Análises e métricas do seu negócio</p>
+          <h1 className="text-2xl font-bold text-foreground">Relatórios</h1>
+          <p className="text-muted-foreground">Análises e métricas do seu negócio</p>
         </div>
 
         {/* Quick Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Card className="bg-white/10 border-white/10">
+          <Card>
             <CardContent className="pt-4">
               <div className="text-2xl font-bold text-accent">R$ 1.2M</div>
-              <p className="text-sm text-white/70">Receita do Mês</p>
+              <p className="text-sm text-muted-foreground">Receita do Mês</p>
             </CardContent>
           </Card>
-          <Card className="bg-white/10 border-white/10">
+          <Card>
             <CardContent className="pt-4">
-              <div className="text-2xl font-bold text-green-400">+18%</div>
-              <p className="text-sm text-white/70">vs Mês Anterior</p>
+              <div className="text-2xl font-bold text-green-600">+18%</div>
+              <p className="text-sm text-muted-foreground">vs Mês Anterior</p>
             </CardContent>
           </Card>
-          <Card className="bg-white/10 border-white/10">
+          <Card>
             <CardContent className="pt-4">
               <div className="text-2xl font-bold text-accent">156</div>
-              <p className="text-sm text-white/70">Clientes Ativos</p>
+              <p className="text-sm text-muted-foreground">Clientes Ativos</p>
             </CardContent>
           </Card>
-          <Card className="bg-white/10 border-white/10">
+          <Card>
             <CardContent className="pt-4">
-              <div className="text-2xl font-bold text-purple-400">42%</div>
-              <p className="text-sm text-white/70">Taxa de Conversão</p>
+              <div className="text-2xl font-bold text-purple-600">42%</div>
+              <p className="text-sm text-muted-foreground">Taxa de Conversão</p>
             </CardContent>
           </Card>
         </div>
 
         {/* Relatórios Disponíveis */}
         <div>
-          <h2 className="text-lg font-semibold text-white mb-4">Relatórios Disponíveis</h2>
+          <h2 className="text-lg font-semibold text-foreground mb-4">Relatórios Disponíveis</h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
             {relatoriosDisponiveis.map((rel) => {
               const Icon = rel.icon;
               return (
-                <Card key={rel.id} className="bg-white/10 border-white/10 hover:bg-white/15 transition-colors">
+                <Card key={rel.id} className="hover:shadow-md transition-shadow">
                   <CardHeader className="pb-3">
                     <div className="flex items-center gap-3">
-                      <div className="p-2 rounded-xl bg-accent/20">
-                        <Icon className="h-5 w-5 text-accent" />
+                      <div className={`p-2 rounded-xl ${rel.bgColor}`}>
+                        <Icon className={`h-5 w-5 ${rel.color}`} />
                       </div>
-                      <CardTitle className="text-base text-white">{rel.titulo}</CardTitle>
+                      <CardTitle className="text-base">{rel.titulo}</CardTitle>
                     </div>
-                    <CardDescription className="text-white/60">{rel.descricao}</CardDescription>
+                    <CardDescription>{rel.descricao}</CardDescription>
                   </CardHeader>
                   <CardContent className="pt-0">
                     <div className="flex gap-2">
-                      <Button variant="outline" size="sm" className="flex-1 border-white/20 text-white hover:bg-white/10">
+                      <Button variant="outline" size="sm" className="flex-1">
                         <FileText className="h-4 w-4 mr-2" />
                         Visualizar
                       </Button>
-                      <Button variant="ghost" size="sm" className="text-white/70 hover:text-white hover:bg-white/10">
+                      <Button variant="ghost" size="sm">
                         <Download className="h-4 w-4" />
                       </Button>
                     </div>
@@ -116,9 +128,9 @@ const Relatorios: React.FC = () => {
         </div>
 
         {/* Relatórios Recentes */}
-        <Card className="bg-white/10 border-white/10">
+        <Card>
           <CardHeader>
-            <CardTitle className="text-white">Relatórios Gerados Recentemente</CardTitle>
+            <CardTitle>Relatórios Gerados Recentemente</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
@@ -128,17 +140,17 @@ const Relatorios: React.FC = () => {
                 { nome: 'Clientes Ativos', data: '08/01/2024', tipo: 'PDF' },
                 { nome: 'Funil de Vendas Dez/23', data: '05/01/2024', tipo: 'PDF' },
               ].map((rel, idx) => (
-                <div key={idx} className="flex items-center justify-between p-3 border border-white/10 rounded-lg hover:bg-white/5 transition-colors">
+                <div key={idx} className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors">
                   <div className="flex items-center gap-3">
-                    <FileText className="h-4 w-4 text-white/60" />
+                    <FileText className="h-4 w-4 text-muted-foreground" />
                     <div>
-                      <p className="font-medium text-sm text-white">{rel.nome}</p>
-                      <p className="text-xs text-white/60">{rel.data}</p>
+                      <p className="font-medium text-sm">{rel.nome}</p>
+                      <p className="text-xs text-muted-foreground">{rel.data}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs text-white/60">{rel.tipo}</span>
-                    <Button variant="ghost" size="sm" className="text-white/70 hover:text-white hover:bg-white/10">
+                    <span className="text-xs text-muted-foreground">{rel.tipo}</span>
+                    <Button variant="ghost" size="sm">
                       <Download className="h-4 w-4" />
                     </Button>
                   </div>
