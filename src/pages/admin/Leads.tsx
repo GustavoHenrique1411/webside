@@ -17,18 +17,19 @@ interface Lead {
   id: number;
   nome: string;
   empresa: string;
-  telefone: string;
   email: string;
-  status: 'Novo' | 'Contatado' | 'Qualificado' | 'Proposta';
+  telefone: string;
   origem: string;
+  status: 'Novo' | 'Contatado' | 'Qualificado' | 'Proposta';
+  data_criacao: string;
 }
 
 const leadsData: Lead[] = [
-  { id: 1, nome: 'João Silva', empresa: 'Posto Central', telefone: '(11) 99999-0001', email: 'joao@postocentral.com', status: 'Novo' as Lead['status'], origem: 'Site' },
-  { id: 2, nome: 'Maria Santos', empresa: 'Rede Combustível', telefone: '(11) 99999-0002', email: 'maria@redecombustivel.com', status: 'Contatado' as Lead['status'], origem: 'Indicação' },
-  { id: 3, nome: 'Carlos Oliveira', empresa: 'Posto Ipiranga', telefone: '(11) 99999-0003', email: 'carlos@postoipiranga.com', status: 'Qualificado' as Lead['status'], origem: 'Google' },
-  { id: 4, nome: 'Ana Costa', empresa: 'Auto Posto BR', telefone: '(11) 99999-0004', email: 'ana@autopostobr.com', status: 'Proposta' as Lead['status'], origem: 'Site' },
-  { id: 5, nome: 'Pedro Lima', empresa: 'Posto Shell', telefone: '(11) 99999-0005', email: 'pedro@postoshell.com', status: 'Novo' as Lead['status'], origem: 'WhatsApp' },
+  { id: 1, nome: 'João Silva', empresa: 'Posto Central', telefone: '(11) 99999-0001', email: 'joao@postocentral.com', status: 'Novo' as Lead['status'], origem: 'Site', data_criacao: '2023-10-01' },
+  { id: 2, nome: 'Maria Santos', empresa: 'Rede Combustível', telefone: '(11) 99999-0002', email: 'maria@redecombustivel.com', status: 'Contatado' as Lead['status'], origem: 'Indicação', data_criacao: '2023-10-02' },
+  { id: 3, nome: 'Carlos Oliveira', empresa: 'Posto Ipiranga', telefone: '(11) 99999-0003', email: 'carlos@postoipiranga.com', status: 'Qualificado' as Lead['status'], origem: 'Google', data_criacao: '2023-10-03' },
+  { id: 4, nome: 'Ana Costa', empresa: 'Auto Posto BR', telefone: '(11) 99999-0004', email: 'ana@autopostobr.com', status: 'Proposta' as Lead['status'], origem: 'Site', data_criacao: '2023-10-04' },
+  { id: 5, nome: 'Pedro Lima', empresa: 'Posto Shell', telefone: '(11) 99999-0005', email: 'pedro@postoshell.com', status: 'Novo' as Lead['status'], origem: 'WhatsApp', data_criacao: '2023-10-05' },
 ];
 
 const statusColors: Record<string, string> = {
@@ -69,7 +70,7 @@ const Leads: React.FC = () => {
     try {
       setIsLoading(true);
       const data = await apiService.getLeads() as Lead[];
-      setLeads(data);
+      setLeads((data || []).filter(lead => lead && typeof lead === 'object'));
     } catch (error) {
       console.error('Error fetching leads:', error);
       alert('Erro ao carregar leads. Tente novamente.');
@@ -79,8 +80,10 @@ const Leads: React.FC = () => {
   };
 
   const filteredLeads = leads.filter(lead =>
-    lead.nome.toLowerCase().includes(search.toLowerCase()) ||
-    lead.empresa.toLowerCase().includes(search.toLowerCase())
+    lead && typeof lead === 'object' && (
+      (typeof lead.nome === 'string' ? lead.nome.toLowerCase() : '').includes((search || '').toLowerCase()) ||
+      (typeof lead.empresa === 'string' ? lead.empresa.toLowerCase() : '').includes((search || '').toLowerCase())
+    )
   );
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -156,12 +159,11 @@ const Leads: React.FC = () => {
     if (deleteLeadId !== null) {
       setIsDeleting(true);
       try {
-        // Simulate API call delay
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
+        await apiService.deleteLead(deleteLeadId);
         setLeads(leads.filter(lead => lead.id !== deleteLeadId));
         setDeleteLeadId(null);
       } catch (error) {
+        console.error('Error deleting lead:', error);
         alert('Erro ao excluir lead. Tente novamente.');
       } finally {
         setIsDeleting(false);
@@ -189,26 +191,26 @@ const Leads: React.FC = () => {
     <AdminLayout title="Leads">
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Leads</h1>
-            <p className="text-muted-foreground">Gerencie seus leads e prospects</p>
+            <h1 className="text-xl sm:text-2xl font-bold text-foreground">Leads</h1>
+            <p className="text-sm sm:text-base text-muted-foreground">Gerencie seus leads e prospects</p>
           </div>
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button className="bg-accent hover:bg-accent/90 text-accent-foreground">
-                <Plus className="h-4 w-4 mr-2" />
-                Novo Lead
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle className="flex items-center gap-2">
-                  <Plus className="h-5 w-5" />
-                  Adicionar Novo Lead
-                </DialogTitle>
-              </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-6">
+          <Button onClick={() => setIsDialogOpen(true)} className="bg-accent hover:bg-accent/90 text-accent-foreground w-full sm:w-auto">
+            <Plus className="h-4 w-4 mr-2" />
+            Novo Lead
+          </Button>
+        </div>
+
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Plus className="h-5 w-5" />
+                Adicionar Novo Lead
+              </DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="nome" className="text-sm font-medium">
@@ -335,9 +337,8 @@ const Leads: React.FC = () => {
                   </Button>
                 </DialogFooter>
               </form>
-            </DialogContent>
-          </Dialog>
-        </div>
+          </DialogContent>
+        </Dialog>
 
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -632,88 +633,90 @@ const Leads: React.FC = () => {
             <CardTitle>Lista de Leads</CardTitle>
           </CardHeader>
           <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Nome</TableHead>
-                  <TableHead>Empresa</TableHead>
-                  <TableHead>Contato</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Origem</TableHead>
-                  <TableHead className="w-[70px]">Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredLeads.map((lead) => (
-                  <TableRow key={lead.id}>
-                    <TableCell className="font-medium">{lead.nome}</TableCell>
-                    <TableCell>{lead.empresa}</TableCell>
-                    <TableCell>
-                      <div className="flex flex-col gap-1">
-                        <span className="flex items-center gap-1 text-sm">
-                          <Phone className="h-3 w-3" /> {lead.telefone}
-                        </span>
-                        <span className="flex items-center gap-1 text-sm">
-                          <Mail className="h-3 w-3" /> {lead.email}
-                        </span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge className={statusColors[lead.status]}>{lead.status}</Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline">{lead.origem}</Badge>
-                    </TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => handleViewLead(lead)}>
-                            <Eye className="h-4 w-4 mr-2" />
-                            Ver Detalhes
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleEditLead(lead)}>
-                            <Edit className="h-4 w-4 mr-2" />
-                            Editar
-                          </DropdownMenuItem>
-                          <DropdownMenuSub>
-                            <DropdownMenuSubTrigger>
-                              <FileText className="h-4 w-4 mr-2" />
-                              Alterar Status
-                            </DropdownMenuSubTrigger>
-                            <DropdownMenuSubContent>
-                              <DropdownMenuItem onClick={() => handleStatusChange(lead, 'Novo')}>
-                                <Badge className={`${statusColors['Novo']} mr-2`}>Novo</Badge>
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleStatusChange(lead, 'Contatado')}>
-                                <Badge className={`${statusColors['Contatado']} mr-2`}>Contatado</Badge>
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleStatusChange(lead, 'Qualificado')}>
-                                <Badge className={`${statusColors['Qualificado']} mr-2`}>Qualificado</Badge>
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleStatusChange(lead, 'Proposta')}>
-                                <Badge className={`${statusColors['Proposta']} mr-2`}>Proposta</Badge>
-                              </DropdownMenuItem>
-                            </DropdownMenuSubContent>
-                          </DropdownMenuSub>
-                          <DropdownMenuItem
-                            onClick={() => handleDeleteLead(lead.id)}
-                            className="text-red-600"
-                          >
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            Excluir
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nome</TableHead>
+                    <TableHead>Empresa</TableHead>
+                    <TableHead>Contato</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Origem</TableHead>
+                    <TableHead className="w-[70px]">Ações</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {filteredLeads.map((lead) => (
+                    <TableRow key={lead.id}>
+                      <TableCell className="font-medium">{lead.nome}</TableCell>
+                      <TableCell>{lead.empresa}</TableCell>
+                      <TableCell>
+                        <div className="flex flex-col gap-1">
+                          <span className="flex items-center gap-1 text-sm">
+                            <Phone className="h-3 w-3" /> {lead.telefone}
+                          </span>
+                          <span className="flex items-center gap-1 text-sm">
+                            <Mail className="h-3 w-3" /> {lead.email}
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge className={statusColors[lead.status]}>{lead.status}</Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline">{lead.origem}</Badge>
+                      </TableCell>
+                      <TableCell>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => handleViewLead(lead)}>
+                              <Eye className="h-4 w-4 mr-2" />
+                              Ver Detalhes
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleEditLead(lead)}>
+                              <Edit className="h-4 w-4 mr-2" />
+                              Editar
+                            </DropdownMenuItem>
+                            <DropdownMenuSub>
+                              <DropdownMenuSubTrigger>
+                                <FileText className="h-4 w-4 mr-2" />
+                                Alterar Status
+                              </DropdownMenuSubTrigger>
+                              <DropdownMenuSubContent>
+                                <DropdownMenuItem onClick={() => handleStatusChange(lead, 'Novo')}>
+                                  <Badge className={`${statusColors['Novo']} mr-2`}>Novo</Badge>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleStatusChange(lead, 'Contatado')}>
+                                  <Badge className={`${statusColors['Contatado']} mr-2`}>Contatado</Badge>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleStatusChange(lead, 'Qualificado')}>
+                                  <Badge className={`${statusColors['Qualificado']} mr-2`}>Qualificado</Badge>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleStatusChange(lead, 'Proposta')}>
+                                  <Badge className={`${statusColors['Proposta']} mr-2`}>Proposta</Badge>
+                                </DropdownMenuItem>
+                              </DropdownMenuSubContent>
+                            </DropdownMenuSub>
+                            <DropdownMenuItem
+                              onClick={() => handleDeleteLead(lead.id)}
+                              className="text-red-600"
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Excluir
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           </CardContent>
         </Card>
       </div>

@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import { Plus, Search, CreditCard, MoreHorizontal, DollarSign, Calendar, FileText, Eye, Edit, Trash2, Loader2 } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger } from '@/components/ui/dropdown-menu';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { apiService } from '@/lib/api';
 
 interface Transacao {
@@ -47,6 +48,8 @@ const Transacoes: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [deleteTransacaoId, setDeleteTransacaoId] = useState<number | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [newTransacao, setNewTransacao] = useState({
     origem: 'pedido', // 'pedido' or 'manual'
     pedidoId: '',
@@ -148,6 +151,26 @@ const Transacoes: React.FC = () => {
     } catch (error) {
       console.error('Error updating transaction status:', error);
       alert('Erro ao atualizar status da transação. Tente novamente.');
+    }
+  };
+
+  const handleDeleteTransacao = (transacaoId: number) => {
+    setDeleteTransacaoId(transacaoId);
+  };
+
+  const confirmDeleteTransacao = async () => {
+    if (deleteTransacaoId !== null) {
+      setIsDeleting(true);
+      try {
+        await apiService.deleteTransacao(deleteTransacaoId);
+        setTransacoes(transacoes.filter(trx => trx.id_transacao !== deleteTransacaoId));
+        setDeleteTransacaoId(null);
+      } catch (error) {
+        console.error('Error deleting transaction:', error);
+        alert('Erro ao excluir transação. Tente novamente.');
+      } finally {
+        setIsDeleting(false);
+      }
     }
   };
 
@@ -322,6 +345,33 @@ const Transacoes: React.FC = () => {
             </form>
           </DialogContent>
         </Dialog>
+
+        <AlertDialog open={deleteTransacaoId !== null} onOpenChange={() => setDeleteTransacaoId(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
+              <AlertDialogDescription>
+                Tem certeza de que deseja excluir esta transação? Esta ação não pode ser desfeita.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+              <AlertDialogAction onClick={confirmDeleteTransacao} disabled={isDeleting} className="bg-red-600 hover:bg-red-700">
+                {isDeleting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Excluindo...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Excluir
+                  </>
+                )}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
 
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

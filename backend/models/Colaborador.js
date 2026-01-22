@@ -13,8 +13,18 @@ class Colaborador {
   }
 
   static async findByEmail(email) {
-    const [rows] = await db.execute('SELECT * FROM colaboradores WHERE email = ? AND ativo = 1', [email]);
-    return rows[0];
+    try {
+      console.log(`[Colaborador.findByEmail] Searching for email: ${email}`);
+      const [rows] = await db.execute('SELECT * FROM colaboradores WHERE email = ? AND ativo = 1', [email]);
+      console.log(`[Colaborador.findByEmail] Query executed. Rows found: ${rows.length}`);
+      if (rows.length > 0) {
+        console.log(`[Colaborador.findByEmail] User found - ID: ${rows[0].id_colaborador}, Email: ${rows[0].email}, Ativo: ${rows[0].ativo}`);
+      }
+      return rows[0];
+    } catch (error) {
+      console.error('[Colaborador.findByEmail] Error:', error);
+      throw error;
+    }
   }
 
   static async create(data) {

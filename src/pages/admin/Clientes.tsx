@@ -147,12 +147,11 @@ const Clientes: React.FC = () => {
     if (deleteClienteId !== null) {
       setIsDeleting(true);
       try {
-        // Simulate API call delay
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
+        await apiService.deleteCliente(deleteClienteId);
         setClientes(clientes.filter(cliente => cliente.id_cliente !== deleteClienteId));
         setDeleteClienteId(null);
       } catch (error) {
+        console.error('Error deleting cliente:', error);
         alert('Erro ao excluir cliente. Tente novamente.');
       } finally {
         setIsDeleting(false);
@@ -181,12 +180,12 @@ const Clientes: React.FC = () => {
     <AdminLayout title="Clientes">
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Clientes</h1>
-            <p className="text-muted-foreground">Gerencie sua base de clientes</p>
+            <h1 className="text-xl sm:text-2xl font-bold text-foreground">Clientes</h1>
+            <p className="text-sm sm:text-base text-muted-foreground">Gerencie sua base de clientes</p>
           </div>
-          <Button onClick={() => setIsDialogOpen(true)} className="bg-accent hover:bg-accent/90 text-accent-foreground">
+          <Button onClick={() => setIsDialogOpen(true)} className="bg-accent hover:bg-accent/90 text-accent-foreground w-full sm:w-auto">
             <Plus className="h-4 w-4 mr-2" />
             Novo Cliente
           </Button>
@@ -314,29 +313,29 @@ const Clientes: React.FC = () => {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <Card>
             <CardContent className="pt-4">
-              <div className="text-2xl font-bold text-accent">{stats.total}</div>
-              <p className="text-sm text-muted-foreground">Total de Clientes</p>
+              <div className="text-xl sm:text-2xl font-bold text-accent">{stats.total}</div>
+              <p className="text-xs sm:text-sm text-muted-foreground">Total de Clientes</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="pt-4">
-              <div className="text-2xl font-bold text-green-600">{stats.ativos}</div>
-              <p className="text-sm text-muted-foreground">Ativos</p>
+              <div className="text-xl sm:text-2xl font-bold text-green-600">{stats.ativos}</div>
+              <p className="text-xs sm:text-sm text-muted-foreground">Ativos</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="pt-4">
-              <div className="text-2xl font-bold text-gray-600">{stats.inativos}</div>
-              <p className="text-sm text-muted-foreground">Inativos</p>
+              <div className="text-xl sm:text-2xl font-bold text-gray-600">{stats.inativos}</div>
+              <p className="text-xs sm:text-sm text-muted-foreground">Inativos</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="pt-4">
-              <div className="text-2xl font-bold text-accent">+{stats.total > 0 ? Math.round((stats.ativos / stats.total) * 100) : 0}%</div>
-              <p className="text-sm text-muted-foreground">Taxa de Ativação</p>
+              <div className="text-xl sm:text-2xl font-bold text-accent">+{stats.total > 0 ? Math.round((stats.ativos / stats.total) * 100) : 0}%</div>
+              <p className="text-xs sm:text-sm text-muted-foreground">Taxa de Ativação</p>
             </CardContent>
           </Card>
         </div>
@@ -358,77 +357,79 @@ const Clientes: React.FC = () => {
             <CardTitle>Lista de Clientes</CardTitle>
           </CardHeader>
           <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Razão Social</TableHead>
-                  <TableHead>Nome Fantasia</TableHead>
-                  <TableHead>CNPJ</TableHead>
-                  <TableHead>Porte</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="w-[70px]">Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredClientes.map((cliente) => (
-                  <TableRow key={cliente.id_cliente}>
-                    <TableCell className="font-medium">{cliente.razao_social}</TableCell>
-                    <TableCell className="font-medium">{cliente.nome_fantasia}</TableCell>
-                    <TableCell className="font-mono text-sm">{cliente.cnpj}</TableCell>
-                    <TableCell>{cliente.porte_empresa}</TableCell>
-                    <TableCell>
-                      <Badge className={statusColors[cliente.status]}>{cliente.status}</Badge>
-                    </TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => handleViewCliente(cliente)}>
-                            <Eye className="h-4 w-4 mr-2" />
-                            Ver Detalhes
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleEditCliente(cliente)}>
-                            <Edit className="h-4 w-4 mr-2" />
-                            Editar
-                          </DropdownMenuItem>
-                          <DropdownMenuSub>
-                            <DropdownMenuSubTrigger>
-                              <Edit className="h-4 w-4 mr-2" />
-                              Alterar Status
-                            </DropdownMenuSubTrigger>
-                            <DropdownMenuSubContent>
-                              <DropdownMenuItem
-                                onClick={() => handleStatusChange(cliente, 'Ativo')}
-                                disabled={cliente.status === 'Ativo'}
-                              >
-                                <Badge className={statusColors['Ativo']}>Ativo</Badge>
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onClick={() => handleStatusChange(cliente, 'Inativo')}
-                                disabled={cliente.status === 'Inativo'}
-                              >
-                                <Badge className={statusColors['Inativo']}>Inativo</Badge>
-                              </DropdownMenuItem>
-                            </DropdownMenuSubContent>
-                          </DropdownMenuSub>
-                          <DropdownMenuItem
-                            onClick={() => handleDeleteCliente(cliente.id_cliente)}
-                            className="text-red-600"
-                          >
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            Excluir
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="min-w-[200px]">Razão Social</TableHead>
+                    <TableHead className="min-w-[150px]">Nome Fantasia</TableHead>
+                    <TableHead className="min-w-[140px]">CNPJ</TableHead>
+                    <TableHead className="min-w-[100px]">Porte</TableHead>
+                    <TableHead className="min-w-[80px]">Status</TableHead>
+                    <TableHead className="w-[70px]">Ações</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {filteredClientes.map((cliente) => (
+                    <TableRow key={cliente.id_cliente}>
+                      <TableCell className="font-medium">{cliente.razao_social}</TableCell>
+                      <TableCell className="font-medium">{cliente.nome_fantasia}</TableCell>
+                      <TableCell className="font-mono text-sm">{cliente.cnpj}</TableCell>
+                      <TableCell>{cliente.porte_empresa}</TableCell>
+                      <TableCell>
+                        <Badge className={statusColors[cliente.status]}>{cliente.status}</Badge>
+                      </TableCell>
+                      <TableCell>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => handleViewCliente(cliente)}>
+                              <Eye className="h-4 w-4 mr-2" />
+                              Ver Detalhes
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleEditCliente(cliente)}>
+                              <Edit className="h-4 w-4 mr-2" />
+                              Editar
+                            </DropdownMenuItem>
+                            <DropdownMenuSub>
+                              <DropdownMenuSubTrigger>
+                                <Edit className="h-4 w-4 mr-2" />
+                                Alterar Status
+                              </DropdownMenuSubTrigger>
+                              <DropdownMenuSubContent>
+                                <DropdownMenuItem
+                                  onClick={() => handleStatusChange(cliente, 'Ativo')}
+                                  disabled={cliente.status === 'Ativo'}
+                                >
+                                  <Badge className={statusColors['Ativo']}>Ativo</Badge>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  onClick={() => handleStatusChange(cliente, 'Inativo')}
+                                  disabled={cliente.status === 'Inativo'}
+                                >
+                                  <Badge className={statusColors['Inativo']}>Inativo</Badge>
+                                </DropdownMenuItem>
+                              </DropdownMenuSubContent>
+                            </DropdownMenuSub>
+                            <DropdownMenuItem
+                              onClick={() => handleDeleteCliente(cliente.id_cliente)}
+                              className="text-red-600"
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Excluir
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           </CardContent>
         </Card>
 

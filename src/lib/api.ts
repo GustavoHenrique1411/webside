@@ -258,6 +258,10 @@ class ApiService {
     return this.request('/orcamentos');
   }
 
+  async getOrcamento(id: number) {
+    return this.request(`/orcamentos/${id}`);
+  }
+
   async createOrcamento(orcamentoData: any) {
     return this.request('/orcamentos', {
       method: 'POST',
@@ -275,6 +279,13 @@ class ApiService {
   async deleteOrcamento(id: number) {
     return this.request(`/orcamentos/${id}`, {
       method: 'DELETE',
+    });
+  }
+
+  async updateOrcamentoStatus(id: number, status: string) {
+    return this.request(`/orcamentos/${id}/status`, {
+      method: 'PUT',
+      body: JSON.stringify({ status }),
     });
   }
 

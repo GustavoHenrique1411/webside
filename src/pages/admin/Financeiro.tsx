@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import AdminLayout from '@/components/AdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,18 +7,23 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { Plus, Search, TrendingUp, TrendingDown, Calendar, MoreHorizontal, DollarSign, FileText, Eye, Edit, Trash2 } from 'lucide-react';
+import { Plus, Search, TrendingUp, TrendingDown, Calendar, MoreHorizontal, DollarSign, FileText, Eye, Edit, Trash2, Loader2 } from 'lucide-react';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger } from '@/components/ui/dropdown-menu';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { apiService } from '@/lib/api';
+import { useToast } from '@/hooks/use-toast';
 
-const transacoesData = [
-  { id: 'FIN-001', descricao: 'Venda - Posto Central', tipo: 'entrada', valor: 45000, data: '2024-01-15', status: 'Pago', categoria: 'Vendas', formaPagamento: 'Boleto' },
-  { id: 'FIN-002', descricao: 'Licença Software', tipo: 'entrada', valor: 12800, data: '2024-01-14', status: 'Pendente', categoria: 'Serviços', formaPagamento: 'PIX' },
-  { id: 'FIN-003', descricao: 'Fornecedor Hardware', tipo: 'saida', valor: 8500, data: '2024-01-13', status: 'Pago', categoria: 'Produtos', formaPagamento: 'Transferência' },
-  { id: 'FIN-004', descricao: 'Venda - Rede Combustível', tipo: 'entrada', valor: 89000, data: '2024-01-12', status: 'Pago', categoria: 'Vendas', formaPagamento: 'Cartão' },
-  { id: 'FIN-005', descricao: 'Folha de Pagamento', tipo: 'saida', valor: 45000, data: '2024-01-10', status: 'Pago', categoria: 'Outros', formaPagamento: 'Dinheiro' },
-  { id: 'FIN-006', descricao: 'Venda - Auto Posto BR', tipo: 'entrada', valor: 67500, data: '2024-01-08', status: 'Atrasado', categoria: 'Vendas', formaPagamento: 'Boleto' },
-];
+type Transacao = {
+  id: number;
+  descricao: string;
+  tipo: 'entrada' | 'saida';
+  valor: number;
+  data: string;
+  status: string;
+  categoria: string;
+  formaPagamento: string;
+};
 
 const statusColors: Record<string, string> = {
   'Pago': 'bg-green-100 text-green-800',
@@ -27,9 +32,11 @@ const statusColors: Record<string, string> = {
 };
 
 const Financeiro: React.FC = () => {
+  const { toast } = useToast();
   const [search, setSearch] = useState('');
   const [filtro, setFiltro] = useState<'todos' | 'entrada' | 'saida'>('todos');
-  const [transacoes, setTransacoes] = useState(transacoesData);
+  const [transacoes, setTransacoes] = useState<Transacao[]>([]);
+  const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [newTransacao, setNewTransacao] = useState({
     tipo: 'entrada',
@@ -40,10 +47,31 @@ const Financeiro: React.FC = () => {
     formaPagamento: 'Boleto',
     status: 'Pendente'
   });
-  const [viewTransacao, setViewTransacao] = useState<typeof transacoesData[0] | null>(null);
-  const [editTransacao, setEditTransacao] = useState<typeof transacoesData[0] | null>(null);
+  const [viewTransacao, setViewTransacao] = useState<Transacao | null>(null);
+  const [editTransacao, setEditTransacao] = useState<Transacao | null>(null);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [deleteTransacaoId, setDeleteTransacaoId] = useState<number | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  useEffect(() => {
+    fetchTransacoes();
+  }, []);
+
+  const fetchTransacoes = async () => {
+    try {
+      const data = await apiService.getTransacoes();
+      setTransacoes(data as Transacao[]);
+    } catch (error) {
+      toast({
+        title: "Erro",
+        description: "Erro ao carregar transações",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filteredTransacoes = transacoes.filter(tr => {
     const matchSearch = tr.descricao.toLowerCase().includes(search.toLowerCase());
@@ -54,41 +82,60 @@ const Financeiro: React.FC = () => {
   const formatCurrency = (value: number) =>
     new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
 
-  const handleStatusChange = (transacao: typeof transacoesData[0], newStatus: string) => {
-    setTransacoes(transacoes.map(tr =>
-      tr.id === transacao.id
-        ? { ...tr, status: newStatus }
-        : tr
-    ));
+  const handleStatusChange = async (transacao: Transacao, newStatus: string) => {
+    try {
+      await apiService.updateTransacao(transacao.id, { ...transacao, status: newStatus });
+      setTransacoes(transacoes.map(tr =>
+        tr.id === transacao.id
+          ? { ...tr, status: newStatus }
+          : tr
+      ));
+      toast({
+        title: "Sucesso",
+        description: "Status da transação atualizado",
+      });
+    } catch (error) {
+      toast({
+        title: "Erro",
+        description: "Erro ao atualizar status",
+        variant: "destructive",
+      });
+    }
   };
 
-  const generateId = () => {
-    const maxId = Math.max(...transacoes.map(t => parseInt(t.id.split('-')[1])));
-    return `FIN-${String(maxId + 1).padStart(3, '0')}`;
+  const handleAddTransacao = async () => {
+    try {
+      const createdTransacao = await apiService.createTransacao(newTransacao) as Transacao;
+      setTransacoes([...transacoes, createdTransacao]);
+      setNewTransacao({
+        tipo: 'entrada',
+        valor: 0,
+        data: '',
+        descricao: '',
+        categoria: '',
+        formaPagamento: 'Boleto',
+        status: 'Pendente'
+      });
+      setIsDialogOpen(false);
+      toast({
+        title: "Sucesso",
+        description: "Transação criada com sucesso",
+      });
+    } catch (error) {
+      toast({
+        title: "Erro",
+        description: "Erro ao criar transação",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleAddTransacao = () => {
-    const newId = generateId();
-    const transacaoToAdd = { ...newTransacao, id: newId };
-    setTransacoes([...transacoes, transacaoToAdd]);
-    setNewTransacao({
-      tipo: 'entrada',
-      valor: 0,
-      data: '',
-      descricao: '',
-      categoria: '',
-      formaPagamento: 'Boleto',
-      status: 'Pendente'
-    });
-    setIsDialogOpen(false);
-  };
-
-  const handleViewTransacao = (transacao: typeof transacoesData[0]) => {
+  const handleViewTransacao = (transacao: Transacao) => {
     setViewTransacao(transacao);
     setIsViewDialogOpen(true);
   };
 
-  const handleEditTransacao = (transacao: typeof transacoesData[0]) => {
+  const handleEditTransacao = (transacao: Transacao) => {
     setEditTransacao(transacao);
     setIsEditDialogOpen(true);
   };
@@ -103,8 +150,31 @@ const Financeiro: React.FC = () => {
     }
   };
 
-  const handleDeleteTransacao = (id: string) => {
-    setTransacoes(transacoes.filter(tr => tr.id !== id));
+  const handleDeleteTransacao = (transacaoId: number) => {
+    setDeleteTransacaoId(transacaoId);
+  };
+
+  const confirmDeleteTransacao = async () => {
+    if (deleteTransacaoId !== null) {
+      setIsDeleting(true);
+      try {
+        await apiService.deleteTransacao(deleteTransacaoId);
+        setTransacoes(transacoes.filter(tr => tr.id !== deleteTransacaoId));
+        setDeleteTransacaoId(null);
+        toast({
+          title: "Sucesso",
+          description: "Transação excluída com sucesso",
+        });
+      } catch (error) {
+        toast({
+          title: "Erro",
+          description: "Erro ao excluir transação",
+          variant: "destructive",
+        });
+      } finally {
+        setIsDeleting(false);
+      }
+    }
   };
 
   const totalEntradas = transacoes.filter(t => t.tipo === 'entrada').reduce((acc, t) => acc + t.valor, 0);
@@ -114,12 +184,12 @@ const Financeiro: React.FC = () => {
     <AdminLayout title="Financeiro">
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Financeiro</h1>
-            <p className="text-muted-foreground">Controle financeiro e pagamentos</p>
+            <h1 className="text-xl sm:text-2xl font-bold text-foreground">Financeiro</h1>
+            <p className="text-sm sm:text-base text-muted-foreground">Controle financeiro e pagamentos</p>
           </div>
-          <Button onClick={() => setIsDialogOpen(true)} className="bg-accent hover:bg-accent/90 text-accent-foreground">
+          <Button onClick={() => setIsDialogOpen(true)} className="bg-accent hover:bg-accent/90 text-accent-foreground w-full sm:w-auto">
             <Plus className="h-4 w-4 mr-2" />
             Nova Transação
           </Button>
@@ -142,7 +212,7 @@ const Financeiro: React.FC = () => {
                   <Label htmlFor="tipo" className="text-sm font-medium">
                     Tipo *
                   </Label>
-                  <Select value={newTransacao.tipo} onValueChange={(value) => setNewTransacao({ ...newTransacao, tipo: value })}>
+                  <Select value={newTransacao.tipo} onValueChange={(value) => setNewTransacao({ ...newTransacao, tipo: value as 'entrada' | 'saida' })}>
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione o tipo" />
                     </SelectTrigger>
@@ -162,7 +232,7 @@ const Financeiro: React.FC = () => {
                       type="number"
                       step="0.01"
                       placeholder="0,00"
-                      value={newTransacao.valor}
+                      value={String(newTransacao.valor)}
                       onChange={(e) => setNewTransacao({ ...newTransacao, valor: parseFloat(e.target.value) || 0 })}
                       className="pl-10"
                       required
@@ -354,7 +424,7 @@ const Financeiro: React.FC = () => {
                     <Label htmlFor="edit-tipo" className="text-sm font-medium">
                       Tipo *
                     </Label>
-                    <Select value={editTransacao.tipo} onValueChange={(value) => setEditTransacao({ ...editTransacao, tipo: value })}>
+                    <Select value={editTransacao.tipo} onValueChange={(value) => setEditTransacao({ ...editTransacao, tipo: value as 'entrada' | 'saida' })}>
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione o tipo" />
                       </SelectTrigger>
@@ -374,7 +444,7 @@ const Financeiro: React.FC = () => {
                         type="number"
                         step="0.01"
                         placeholder="0,00"
-                        value={editTransacao.valor}
+                        value={String(editTransacao.valor)}
                         onChange={(e) => setEditTransacao({ ...editTransacao, valor: parseFloat(e.target.value) || 0 })}
                         className="pl-10"
                         required

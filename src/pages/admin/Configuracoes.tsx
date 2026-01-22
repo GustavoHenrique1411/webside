@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Building2, User, Bell, Shield, Palette, Settings, Save, CheckCircle, Loader2 } from 'lucide-react';
+import { Building2, User, Bell, Shield, Palette, Settings, Save, CheckCircle, Loader2, Users, Plus, Edit, Trash2 } from 'lucide-react';
 import { apiService } from '@/lib/api';
 
 const Configuracoes: React.FC = () => {
@@ -29,12 +29,7 @@ const Configuracoes: React.FC = () => {
     telefone: '',
     email: ''
   });
-  const [usuarioData, setUsuarioData] = useState({
-    nome: '',
-    email: '',
-    cargo: '',
-    departamento: ''
-  });
+
   const [senhaData, setSenhaData] = useState({
     atual: '',
     nova: '',
@@ -46,6 +41,15 @@ const Configuracoes: React.FC = () => {
     diasVencimentoFatura: 0,
     taxaJurosMora: 0,
     dataVigencia: ''
+  });
+  const [colaboradores, setColaboradores] = useState<any[]>([]);
+  const [isColaboradorDialogOpen, setIsColaboradorDialogOpen] = useState(false);
+  const [editingColaborador, setEditingColaborador] = useState<any>(null);
+  const [colaboradorForm, setColaboradorForm] = useState({
+    nome: '',
+    email: '',
+    cargo: '',
+    departamento: ''
   });
 
   // Fetch initial data
@@ -68,23 +72,7 @@ const Configuracoes: React.FC = () => {
           });
         }
 
-        // Fetch user profile
-        const profile = await apiService.getProfile() as any;
-        setUsuarioData({
-          nome: profile.nome || '',
-          email: profile.email || '',
-          cargo: profile.cargo || '',
-          departamento: profile.departamento || ''
-        });
 
-        // Fetch user preferences
-        const preferences = await apiService.getUserPreferences() as any;
-        setNotificacoesEmail(preferences.emailNotifications || true);
-        setNotificacoesPush(preferences.pushNotifications || false);
-        setTemaEscuro(preferences.darkTheme || false);
-        setMenuCompacto(preferences.compactMenu || false);
-        setResumoDiario(preferences.dailySummary || true);
-        setAlertasVencimento(preferences.expiryAlerts || true);
 
         // Fetch system parameters
         const parametros = await apiService.getParametrosEmpresa() as any[];
@@ -98,6 +86,10 @@ const Configuracoes: React.FC = () => {
             dataVigencia: param.data_vigencia || new Date().toISOString().split('T')[0]
           });
         }
+
+        // Fetch colaboradores
+        const colaboradoresData = await apiService.getColaboradores() as any[];
+        setColaboradores(colaboradoresData || []);
       } catch (error) {
         console.error('Error fetching data:', error);
         alert('Erro ao carregar dados. Tente novamente.');
@@ -227,6 +219,56 @@ const Configuracoes: React.FC = () => {
     }
   };
 
+  const handleAddColaborador = async (colaboradorData: any) => {
+    setIsLoading(true);
+    try {
+      await apiService.createColaborador(colaboradorData);
+      setSuccessMessage('Colaborador adicionado com sucesso!');
+      setIsSuccessDialogOpen(true);
+      // Refresh colaboradores list
+      const colaboradoresData = await apiService.getColaboradores() as any[];
+      setColaboradores(colaboradoresData || []);
+    } catch (error) {
+      alert('Erro ao adicionar colaborador. Tente novamente.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleEditColaborador = async (id: number, colaboradorData: any) => {
+    setIsLoading(true);
+    try {
+      await apiService.updateColaborador(id, colaboradorData);
+      setSuccessMessage('Colaborador atualizado com sucesso!');
+      setIsSuccessDialogOpen(true);
+      // Refresh colaboradores list
+      const colaboradoresData = await apiService.getColaboradores() as any[];
+      setColaboradores(colaboradoresData || []);
+    } catch (error) {
+      alert('Erro ao atualizar colaborador. Tente novamente.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDeleteColaborador = async (id: number) => {
+    if (!confirm('Tem certeza que deseja excluir este colaborador?')) return;
+
+    setIsLoading(true);
+    try {
+      await apiService.deleteColaborador(id);
+      setSuccessMessage('Colaborador excluído com sucesso!');
+      setIsSuccessDialogOpen(true);
+      // Refresh colaboradores list
+      const colaboradoresData = await apiService.getColaboradores() as any[];
+      setColaboradores(colaboradoresData || []);
+    } catch (error) {
+      alert('Erro ao excluir colaborador. Tente novamente.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
 
 
   return (
@@ -243,8 +285,8 @@ const Configuracoes: React.FC = () => {
             <TabsTrigger value="empresa" className="flex items-center gap-2">
               <Building2 className="h-4 w-4" /> Empresa
             </TabsTrigger>
-            <TabsTrigger value="usuario" className="flex items-center gap-2">
-              <User className="h-4 w-4" /> Usuário
+            <TabsTrigger value="usuarios" className="flex items-center gap-2">
+              <Users className="h-4 w-4" /> Usuários
             </TabsTrigger>
             <TabsTrigger value="notificacoes" className="flex items-center gap-2">
               <Bell className="h-4 w-4" /> Notificações
@@ -347,67 +389,79 @@ const Configuracoes: React.FC = () => {
             </Card>
           </TabsContent>
 
-          {/* Usuário */}
-          <TabsContent value="usuario">
-            <Card>
-              <CardHeader>
-                <CardTitle>Perfil do Usuário</CardTitle>
-                <CardDescription>Suas informações pessoais</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="nome">Nome Completo *</Label>
-                    <Input
-                      id="nome"
-                      value={usuarioData.nome}
-                      onChange={(e) => setUsuarioData({ ...usuarioData, nome: e.target.value })}
-                      required
-                    />
+          {/* Usuários */}
+          <TabsContent value="usuarios">
+            <div className="space-y-6">
+              {/* Gerenciamento de Colaboradores */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Gerenciamento de Colaboradores</CardTitle>
+                  <CardDescription>Adicione, edite ou remova colaboradores do sistema</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <h3 className="text-lg font-medium">Colaboradores</h3>
+                      <p className="text-sm text-muted-foreground">Lista de todos os colaboradores cadastrados</p>
+                    </div>
+                    <Button
+                      className="bg-accent hover:bg-accent/90 text-accent-foreground"
+                      onClick={() => {
+                        setEditingColaborador(null);
+                        setColaboradorForm({ nome: '', email: '', cargo: '', departamento: '' });
+                        setIsColaboradorDialogOpen(true);
+                      }}
+                    >
+                      <Plus className="h-4 w-4 mr-2" /> Adicionar Colaborador
+                    </Button>
                   </div>
+
                   <div className="space-y-2">
-                    <Label htmlFor="email">E-mail *</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={usuarioData.email}
-                      onChange={(e) => setUsuarioData({ ...usuarioData, email: e.target.value })}
-                      required
-                    />
+                    {colaboradores.length === 0 ? (
+                      <div className="text-center py-8 text-muted-foreground">
+                        Nenhum colaborador cadastrado ainda.
+                      </div>
+                    ) : (
+                      colaboradores.map((colaborador: any) => (
+                        <div key={colaborador.id} className="flex items-center justify-between p-4 border rounded-lg">
+                          <div>
+                            <p className="font-medium">{colaborador.nome}</p>
+                            <p className="text-sm text-muted-foreground">{colaborador.email}</p>
+                            <p className="text-sm text-muted-foreground">{colaborador.cargo} - {colaborador.departamento}</p>
+                          </div>
+                          <div className="flex gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                setEditingColaborador(colaborador);
+                                setColaboradorForm({
+                                  nome: colaborador.nome,
+                                  email: colaborador.email,
+                                  cargo: colaborador.cargo,
+                                  departamento: colaborador.departamento
+                                });
+                                setIsColaboradorDialogOpen(true);
+                              }}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleDeleteColaborador(colaborador.id)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      ))
+                    )}
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="cargo">Cargo</Label>
-                    <Input
-                      id="cargo"
-                      value={usuarioData.cargo}
-                      onChange={(e) => setUsuarioData({ ...usuarioData, cargo: e.target.value })}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="departamento">Departamento</Label>
-                    <Input
-                      id="departamento"
-                      value={usuarioData.departamento}
-                      onChange={(e) => setUsuarioData({ ...usuarioData, departamento: e.target.value })}
-                    />
-                  </div>
-                </div>
-                <Button
-                  className="bg-accent hover:bg-accent/90 text-accent-foreground"
-                  onClick={handleSaveUsuario}
-                  disabled={isLoading}
-                >
-                  {isLoading ? 'Salvando...' : <><Save className="h-4 w-4 mr-2" /> Salvar Perfil</>}
-                </Button>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
-
-
-
-
-
-
 
           {/* Notificações */}
           <TabsContent value="notificacoes">
@@ -650,6 +704,77 @@ const Configuracoes: React.FC = () => {
           </div>
           <div className="flex justify-end">
             <Button onClick={() => setIsSuccessDialogOpen(false)}>Fechar</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Colaborador Dialog */}
+      <Dialog open={isColaboradorDialogOpen} onOpenChange={setIsColaboradorDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {editingColaborador ? 'Editar Colaborador' : 'Adicionar Colaborador'}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="colaboradorNome">Nome *</Label>
+              <Input
+                id="colaboradorNome"
+                value={colaboradorForm.nome}
+                onChange={(e) => setColaboradorForm({ ...colaboradorForm, nome: e.target.value })}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="colaboradorEmail">E-mail *</Label>
+              <Input
+                id="colaboradorEmail"
+                type="email"
+                value={colaboradorForm.email}
+                onChange={(e) => setColaboradorForm({ ...colaboradorForm, email: e.target.value })}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="colaboradorCargo">Cargo</Label>
+              <Input
+                id="colaboradorCargo"
+                value={colaboradorForm.cargo}
+                onChange={(e) => setColaboradorForm({ ...colaboradorForm, cargo: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="colaboradorDepartamento">Departamento</Label>
+              <Input
+                id="colaboradorDepartamento"
+                value={colaboradorForm.departamento}
+                onChange={(e) => setColaboradorForm({ ...colaboradorForm, departamento: e.target.value })}
+              />
+            </div>
+          </div>
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setIsColaboradorDialogOpen(false)}>
+              Cancelar
+            </Button>
+            <Button
+              className="bg-accent hover:bg-accent/90 text-accent-foreground"
+              onClick={async () => {
+                if (!colaboradorForm.nome || !colaboradorForm.email) {
+                  alert('Nome e e-mail são obrigatórios.');
+                  return;
+                }
+                if (editingColaborador) {
+                  await handleEditColaborador(editingColaborador.id, colaboradorForm);
+                } else {
+                  await handleAddColaborador(colaboradorForm);
+                }
+                setIsColaboradorDialogOpen(false);
+              }}
+              disabled={isLoading}
+            >
+              {isLoading ? 'Salvando...' : editingColaborador ? 'Atualizar' : 'Adicionar'}
+            </Button>
           </div>
         </DialogContent>
       </Dialog>

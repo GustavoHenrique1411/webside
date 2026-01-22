@@ -1,9 +1,10 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { 
-  Users, FileText, ShoppingCart, Building, BarChart3, LogOut, Cog, DollarSign, Home 
+import {
+  Users, FileText, ShoppingCart, Building, BarChart3, LogOut, Cog, DollarSign, Home, User, ChevronDown
 } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface AdminLayoutProps {
@@ -25,7 +26,7 @@ const menuItems = [
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { logout } = useAuth();
+  const { logout, user, isAuthenticated } = useAuth();
 
   const handleLogout = () => {
     logout();
@@ -47,14 +48,22 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
             <span className="hidden md:inline text-white/60 text-sm">|</span>
             <span className="hidden md:inline text-white font-medium">{title}</span>
           </div>
-          <Button 
-            variant="ghost" 
-            onClick={handleLogout} 
-            className="text-white/80 hover:text-white hover:bg-white/10"
-          >
-            <LogOut className="h-4 w-4 mr-2" />
-            Sair
-          </Button>
+          <div className="flex items-center gap-4">
+            {isAuthenticated && user && (
+              <div className="flex items-center gap-2 text-white/80">
+                <User className="h-4 w-4" />
+                <span className="hidden md:inline text-sm">{user.nome}</span>
+              </div>
+            )}
+            <Button
+              variant="ghost"
+              onClick={handleLogout}
+              className="text-white/80 hover:text-white hover:bg-white/10"
+            >
+              <LogOut className="h-4 w-4 mr-2" />
+              Sair
+            </Button>
+          </div>
         </div>
       </header>
 
