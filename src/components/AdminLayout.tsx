@@ -41,7 +41,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
         <div className="flex items-center justify-between px-3 sm:px-4 py-3">
           <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
             <img
-              src="https://www.websidesistemas.com.br/imagens/logo_webside.png"
+              src="/logo_webside.png"
               alt="Webside Sistemas"
               className="h-6 sm:h-8 w-auto object-contain cursor-pointer flex-shrink-0"
               onClick={() => navigate('/admin/dashboard')}

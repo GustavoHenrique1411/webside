@@ -293,7 +293,7 @@ const Leads: React.FC = () => {
                         <SelectTrigger>
                           <SelectValue placeholder="Selecione o status" />
                         </SelectTrigger>
-                        <SelectContent position="popper" sideOffset={5} container={null}>
+                        <SelectContent key={`status-new-${isDialogOpen}`} position="popper" sideOffset={5}>
                           <SelectItem value="Novo">Novo</SelectItem>
                           <SelectItem value="Contatado">Contatado</SelectItem>
                           <SelectItem value="Qualificado">Qualificado</SelectItem>
@@ -309,7 +309,7 @@ const Leads: React.FC = () => {
                         <SelectTrigger>
                           <SelectValue placeholder="Selecione a origem" />
                         </SelectTrigger>
-                        <SelectContent position="popper" sideOffset={5} container={null}>
+                        <SelectContent key={`origem-new-${isDialogOpen}`} position="popper" sideOffset={5}>
                           <SelectItem value="Site">Site</SelectItem>
                           <SelectItem value="Google">Google</SelectItem>
                           <SelectItem value="WhatsApp">WhatsApp</SelectItem>
@@ -542,7 +542,7 @@ const Leads: React.FC = () => {
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione o status" />
                       </SelectTrigger>
-                      <SelectContent position="popper" sideOffset={5} container={null}>
+                      <SelectContent key={`status-edit-${isEditDialogOpen}`} position="popper" sideOffset={5}>
                         <SelectItem value="Novo">Novo</SelectItem>
                         <SelectItem value="Contatado">Contatado</SelectItem>
                         <SelectItem value="Qualificado">Qualificado</SelectItem>
@@ -558,7 +558,7 @@ const Leads: React.FC = () => {
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione a origem" />
                       </SelectTrigger>
-                      <SelectContent position="popper" sideOffset={5} container={null}>
+                      <SelectContent key={`origem-edit-${isEditDialogOpen}`} position="popper" sideOffset={5}>
                         <SelectItem value="Site">Site</SelectItem>
                         <SelectItem value="Google">Google</SelectItem>
                         <SelectItem value="WhatsApp">WhatsApp</SelectItem>

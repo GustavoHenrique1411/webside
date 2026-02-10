@@ -517,7 +517,7 @@ const Orcamentos: React.FC = () => {
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione a origem" />
                     </SelectTrigger>
-                    <SelectContent position="popper" sideOffset={5} container={null}>
+                    <SelectContent position="popper" sideOffset={5}>
                       <SelectItem value="lead">Lead</SelectItem>
                       <SelectItem value="cliente">Cliente Existente</SelectItem>
                     </SelectContent>

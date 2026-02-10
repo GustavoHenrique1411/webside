@@ -207,7 +207,7 @@ const Transacoes: React.FC = () => {
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione o tipo" />
                     </SelectTrigger>
-                    <SelectContent position="popper" sideOffset={5} container={null}>
+                    <SelectContent key={`tipo-new-${isDialogOpen}`} position="popper" sideOffset={5}>
                       <SelectItem value="Receita">Receita</SelectItem>
                       <SelectItem value="Despesa">Despesa</SelectItem>
                     </SelectContent>
