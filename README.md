@@ -1,73 +1,222 @@
-# Welcome to your Lovable project
+# Webside - Sistema de Gestão Empresarial
 
-## Project info
+Sistema completo de gestão empresarial com frontend React/TypeScript e backend Node.js/Express, incluindo módulos para leads, clientes, produtos, pedidos, orçamentos, contratos, faturas e muito mais.
 
-**URL**: https://lovable.dev/projects/25df08cd-1b76-429f-8ab7-f07b576edc2c
+## 🚀 Tecnologias Utilizadas
 
-## How can I edit this code?
+### Frontend
+- **React 18** com TypeScript
+- **Vite** para build e desenvolvimento
+- **Tailwind CSS** para estilização
+- **shadcn/ui** para componentes UI
+- **React Query** para gerenciamento de estado e cache
+- **React Router** para navegação
 
-There are several ways of editing your application.
+### Backend
+- **Node.js** com Express.js
+- **MySQL** como banco de dados
+- **JWT** para autenticação
+- **bcrypt** para hash de senhas
+- **CORS** configurado
+- **Winston** para logs estruturados
 
-**Use Lovable**
+### DevOps
+- **Docker** e Docker Compose
+- **GitHub Actions** para CI/CD
+- **ESLint** e **Prettier** para qualidade de código
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/25df08cd-1b76-429f-8ab7-f07b576edc2c) and start prompting.
+## 📋 Pré-requisitos
 
-Changes made via Lovable will be committed automatically to this repo.
+- Node.js 18+
+- Docker e Docker Compose
+- MySQL 8.0+
 
-**Use your preferred IDE**
+## 🛠️ Instalação e Configuração
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Desenvolvimento Local
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+1. **Clone o repositório:**
+```bash
+git clone <URL_DO_REPOSITORIO>
+cd webside
+```
 
-Follow these steps:
+2. **Instale as dependências:**
+```bash
+# Frontend
+npm install
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+# Backend
+cd backend
+npm install
+cd ..
+```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+3. **Configure o ambiente:**
+```bash
+# Copie o arquivo de exemplo
+cp backend/.env.example backend/.env
 
-# Step 3: Install the necessary dependencies.
-npm i
+# Edite as variáveis de ambiente
+nano backend/.env
+```
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+4. **Execute com Docker:**
+```bash
+docker-compose up -d
+```
+
+5. **Ou execute localmente:**
+```bash
+# Terminal 1 - Backend
+cd backend
+npm run dev
+
+# Terminal 2 - Frontend
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+### Produção
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```bash
+# Build das imagens
+docker-compose -f docker-compose.prod.yml build
 
-**Use GitHub Codespaces**
+# Deploy
+docker-compose -f docker-compose.prod.yml up -d
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## 📁 Estrutura do Projeto
 
-## What technologies are used for this project?
+```
+webside/
+├── backend/                 # API REST Node.js/Express
+│   ├── controllers/         # Controladores da aplicação
+│   ├── middleware/          # Middlewares customizados
+│   ├── models/             # Modelos de dados
+│   ├── routes/             # Definições de rotas
+│   ├── services/           # Lógica de negócio
+│   ├── config/             # Configurações
+│   └── scripts/            # Scripts utilitários
+├── src/                    # Frontend React/TypeScript
+│   ├── components/         # Componentes reutilizáveis
+│   ├── pages/              # Páginas da aplicação
+│   ├── contexts/           # Contextos React
+│   ├── hooks/              # Hooks customizados
+│   └── lib/                # Utilitários
+├── public/                 # Assets estáticos
+├── documentos/             # Documentação do projeto
+└── database/               # Scripts SQL
+```
 
-This project is built with:
+## 🔐 Autenticação
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+O sistema utiliza JWT (JSON Web Tokens) para autenticação. Usuários de teste disponíveis:
 
-## How can I deploy this project?
+- **Admin:** admin@empresa.com / admin123
+- **Teste:** test@test.com / test123
+- **Demo:** demo@demo.com / demo123
 
-Simply open [Lovable](https://lovable.dev/projects/25df08cd-1b76-429f-8ab7-f07b576edc2c) and click on Share -> Publish.
+## 📊 Módulos do Sistema
 
-## Can I connect a custom domain to my Lovable project?
+- **📈 Dashboard** - Visão geral do negócio
+- **👥 Leads** - Gestão de leads e prospects
+- **🏢 Clientes** - Cadastro e gestão de clientes
+- **📦 Produtos** - Catálogo de produtos/serviços
+- **📋 Pedidos** - Controle de pedidos de venda
+- **💰 Orçamentos** - Criação e gestão de orçamentos
+- **📄 Contratos** - Geração de contratos em PDF
+- **💳 Financeiro** - Controle financeiro e faturas
+- **👷 Implantações** - Gestão de projetos de implantação
+- **📊 Relatórios** - Relatórios e analytics
 
-Yes, you can!
+## 🔧 Scripts Disponíveis
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+### Frontend
+```bash
+npm run dev          # Inicia servidor de desenvolvimento
+npm run build        # Build para produção
+npm run preview      # Preview do build
+npm run lint         # Executa ESLint
+```
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+### Backend
+```bash
+npm run dev          # Inicia servidor com nodemon
+npm run start        # Inicia servidor em produção
+npm run test         # Executa testes
+npm run healthcheck  # Verifica saúde da aplicação
+```
+
+## 🧪 Testes
+
+```bash
+# Backend
+cd backend
+npm test
+
+# Com Docker
+docker-compose exec backend npm test
+```
+
+## 🚀 Deploy
+
+### Desenvolvimento
+```bash
+docker-compose up -d
+```
+
+### Produção
+```bash
+docker-compose -f docker-compose.prod.yml up -d
+```
+
+## 📚 Documentação da API
+
+A documentação completa da API está disponível em `/api/docs` quando o servidor estiver rodando.
+
+### Endpoints Principais
+
+#### Autenticação
+- `POST /api/auth/login` - Login de usuário
+- `POST /api/auth/register` - Registro de novo usuário
+- `GET /api/auth/profile` - Perfil do usuário logado
+
+#### Leads
+- `GET /api/leads` - Lista todos os leads
+- `POST /api/leads` - Cria novo lead
+- `PUT /api/leads/:id` - Atualiza lead
+- `DELETE /api/leads/:id` - Remove lead
+
+#### Clientes
+- `GET /api/clientes` - Lista todos os clientes
+- `POST /api/clientes` - Cria novo cliente
+- `PUT /api/clientes/:id` - Atualiza cliente
+
+#### Produtos
+- `GET /api/produtos` - Lista todos os produtos
+- `POST /api/produtos` - Cria novo produto
+
+#### Pedidos
+- `GET /api/pedidos` - Lista todos os pedidos
+- `POST /api/pedidos` - Cria novo pedido
+
+## 🤝 Contribuição
+
+1. Fork o projeto
+2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
+3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
+4. Push para a branch (`git push origin feature/AmazingFeature`)
+5. Abra um Pull Request
+
+## 📝 Licença
+
+Este projeto está sob a licença MIT. Veja o arquivo `LICENSE` para mais detalhes.
+
+## 📞 Suporte
+
+Para suporte, entre em contato com a equipe de desenvolvimento ou abra uma issue no GitHub.
+
+## 🔄 Versionamento
+
+Este projeto utiliza [SemVer](http://semver.org/) para versionamento. Para ver as versões disponíveis, consulte as [tags neste repositório](https://github.com/seu-usuario/webside/tags).

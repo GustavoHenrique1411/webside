@@ -1,19 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import AdminLayout from '@/components/AdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Search, TrendingUp, TrendingDown, Calendar, MoreHorizontal } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
+import { Plus, Search, TrendingUp, TrendingDown, Calendar, MoreHorizontal, DollarSign, FileText, Eye, Edit, Trash2, Loader2 } from 'lucide-react';
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table';
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger } from '@/components/ui/dropdown-menu';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { apiService } from '@/lib/api';
+import { useToast } from '@/hooks/use-toast';
 
-const transacoesData = [
-  { id: 'FIN-001', descricao: 'Venda - Posto Central', tipo: 'entrada', valor: 45000, data: '2024-01-15', status: 'Pago' },
-  { id: 'FIN-002', descricao: 'Licença Software', tipo: 'entrada', valor: 12800, data: '2024-01-14', status: 'Pendente' },
-  { id: 'FIN-003', descricao: 'Fornecedor Hardware', tipo: 'saida', valor: 8500, data: '2024-01-13', status: 'Pago' },
-  { id: 'FIN-004', descricao: 'Venda - Rede Combustível', tipo: 'entrada', valor: 89000, data: '2024-01-12', status: 'Pago' },
-  { id: 'FIN-005', descricao: 'Folha de Pagamento', tipo: 'saida', valor: 45000, data: '2024-01-10', status: 'Pago' },
-  { id: 'FIN-006', descricao: 'Venda - Auto Posto BR', tipo: 'entrada', valor: 67500, data: '2024-01-08', status: 'Atrasado' },
-];
+type Transacao = {
+  id: number;
+  descricao: string;
+  tipo: 'entrada' | 'saida';
+  valor: number;
+  data: string;
+  status: string;
+  categoria: string;
+  formaPagamento: string;
+};
 
 const statusColors: Record<string, string> = {
   'Pago': 'bg-green-100 text-green-800',
@@ -22,35 +32,524 @@ const statusColors: Record<string, string> = {
 };
 
 const Financeiro: React.FC = () => {
+  const { toast } = useToast();
   const [search, setSearch] = useState('');
   const [filtro, setFiltro] = useState<'todos' | 'entrada' | 'saida'>('todos');
+  const [transacoes, setTransacoes] = useState<Transacao[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [newTransacao, setNewTransacao] = useState({
+    tipo: 'entrada',
+    valor: 0,
+    data: '',
+    descricao: '',
+    categoria: '',
+    formaPagamento: 'Boleto',
+    status: 'Pendente'
+  });
+  const [viewTransacao, setViewTransacao] = useState<Transacao | null>(null);
+  const [editTransacao, setEditTransacao] = useState<Transacao | null>(null);
+  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [deleteTransacaoId, setDeleteTransacaoId] = useState<number | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  const filteredTransacoes = transacoesData.filter(tr => {
+  useEffect(() => {
+    fetchTransacoes();
+  }, []);
+
+  const fetchTransacoes = async () => {
+    try {
+      const data = await apiService.getTransacoes();
+      setTransacoes(data as Transacao[]);
+    } catch (error) {
+      toast({
+        title: "Erro",
+        description: "Erro ao carregar transações",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredTransacoes = transacoes.filter(tr => {
     const matchSearch = tr.descricao.toLowerCase().includes(search.toLowerCase());
     const matchFiltro = filtro === 'todos' || tr.tipo === filtro;
     return matchSearch && matchFiltro;
   });
 
-  const formatCurrency = (value: number) => 
+  const formatCurrency = (value: number) =>
     new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
 
-  const totalEntradas = transacoesData.filter(t => t.tipo === 'entrada').reduce((acc, t) => acc + t.valor, 0);
-  const totalSaidas = transacoesData.filter(t => t.tipo === 'saida').reduce((acc, t) => acc + t.valor, 0);
+  const handleStatusChange = async (transacao: Transacao, newStatus: string) => {
+    try {
+      await apiService.updateTransacao(transacao.id, { ...transacao, status: newStatus });
+      setTransacoes(transacoes.map(tr =>
+        tr.id === transacao.id
+          ? { ...tr, status: newStatus }
+          : tr
+      ));
+      toast({
+        title: "Sucesso",
+        description: "Status da transação atualizado",
+      });
+    } catch (error) {
+      toast({
+        title: "Erro",
+        description: "Erro ao atualizar status",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleAddTransacao = async () => {
+    try {
+      const createdTransacao = await apiService.createTransacao(newTransacao) as Transacao;
+      setTransacoes([...transacoes, createdTransacao]);
+      setNewTransacao({
+        tipo: 'entrada',
+        valor: 0,
+        data: '',
+        descricao: '',
+        categoria: '',
+        formaPagamento: 'Boleto',
+        status: 'Pendente'
+      });
+      setIsDialogOpen(false);
+      toast({
+        title: "Sucesso",
+        description: "Transação criada com sucesso",
+      });
+    } catch (error) {
+      toast({
+        title: "Erro",
+        description: "Erro ao criar transação",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleViewTransacao = (transacao: Transacao) => {
+    setViewTransacao(transacao);
+    setIsViewDialogOpen(true);
+  };
+
+  const handleEditTransacao = (transacao: Transacao) => {
+    setEditTransacao(transacao);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleUpdateTransacao = () => {
+    if (editTransacao) {
+      setTransacoes(transacoes.map(tr =>
+        tr.id === editTransacao.id ? editTransacao : tr
+      ));
+      setEditTransacao(null);
+      setIsEditDialogOpen(false);
+    }
+  };
+
+  const handleDeleteTransacao = (transacaoId: number) => {
+    setDeleteTransacaoId(transacaoId);
+  };
+
+  const confirmDeleteTransacao = async () => {
+    if (deleteTransacaoId !== null) {
+      setIsDeleting(true);
+      try {
+        await apiService.deleteTransacao(deleteTransacaoId);
+        setTransacoes(transacoes.filter(tr => tr.id !== deleteTransacaoId));
+        setDeleteTransacaoId(null);
+        toast({
+          title: "Sucesso",
+          description: "Transação excluída com sucesso",
+        });
+      } catch (error) {
+        toast({
+          title: "Erro",
+          description: "Erro ao excluir transação",
+          variant: "destructive",
+        });
+      } finally {
+        setIsDeleting(false);
+      }
+    }
+  };
+
+  const totalEntradas = transacoes.filter(t => t.tipo === 'entrada').reduce((acc, t) => acc + t.valor, 0);
+  const totalSaidas = transacoes.filter(t => t.tipo === 'saida').reduce((acc, t) => acc + t.valor, 0);
 
   return (
     <AdminLayout title="Financeiro">
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Financeiro</h1>
-            <p className="text-muted-foreground">Controle financeiro e pagamentos</p>
+            <h1 className="text-xl sm:text-2xl font-bold text-foreground">Financeiro</h1>
+            <p className="text-sm sm:text-base text-muted-foreground">Controle financeiro e pagamentos</p>
           </div>
-          <Button className="bg-accent hover:bg-accent/90 text-accent-foreground">
+          <Button onClick={() => setIsDialogOpen(true)} className="bg-accent hover:bg-accent/90 text-accent-foreground w-full sm:w-auto">
             <Plus className="h-4 w-4 mr-2" />
             Nova Transação
           </Button>
         </div>
+
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <DollarSign className="h-5 w-5" />
+                Cadastrar Nova Transação
+              </DialogTitle>
+            </DialogHeader>
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              handleAddTransacao();
+            }} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="tipo" className="text-sm font-medium">
+                    Tipo *
+                  </Label>
+                  <Select value={newTransacao.tipo} onValueChange={(value) => setNewTransacao({ ...newTransacao, tipo: value as 'entrada' | 'saida' })}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione o tipo" />
+                    </SelectTrigger>
+                    <SelectContent key={`tipo-new-${isDialogOpen}`}>
+                      <SelectItem value="entrada">Entrada</SelectItem>
+                      <SelectItem value="saida">Saída</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="valor" className="text-sm font-medium">
+                    Valor *
+                  </Label>
+                  <div className="relative">
+                    <Input
+                      id="valor"
+                      type="number"
+                      step="0.01"
+                      placeholder="0,00"
+                      value={String(newTransacao.valor)}
+                      onChange={(e) => setNewTransacao({ ...newTransacao, valor: parseFloat(e.target.value) || 0 })}
+                      className="pl-10"
+                      required
+                    />
+                    <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  </div>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="data" className="text-sm font-medium">
+                    Data *
+                  </Label>
+                  <div className="relative">
+                    <Input
+                      id="data"
+                      type="date"
+                      value={newTransacao.data}
+                      onChange={(e) => setNewTransacao({ ...newTransacao, data: e.target.value })}
+                      className="pl-10"
+                      required
+                    />
+                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="categoria" className="text-sm font-medium">
+                    Categoria *
+                  </Label>
+                  <Select value={newTransacao.categoria} onValueChange={(value) => setNewTransacao({ ...newTransacao, categoria: value })}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione a categoria" />
+                    </SelectTrigger>
+                    <SelectContent key={`categoria-new-${isDialogOpen}`}>
+                      <SelectItem value="Vendas">Vendas</SelectItem>
+                      <SelectItem value="Serviços">Serviços</SelectItem>
+                      <SelectItem value="Produtos">Produtos</SelectItem>
+                      <SelectItem value="Outros">Outros</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="descricao" className="text-sm font-medium">
+                  Descrição *
+                </Label>
+                <div className="relative">
+                  <Input
+                    id="descricao"
+                    placeholder="Descrição da transação"
+                    value={newTransacao.descricao}
+                    onChange={(e) => setNewTransacao({ ...newTransacao, descricao: e.target.value })}
+                    className="pl-10"
+                    required
+                  />
+                  <FileText className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="formaPagamento" className="text-sm font-medium">
+                    Forma de Pagamento
+                  </Label>
+                  <Select value={newTransacao.formaPagamento} onValueChange={(value) => setNewTransacao({ ...newTransacao, formaPagamento: value })}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione a forma" />
+                    </SelectTrigger>
+                    <SelectContent key={`pagamento-new-${isDialogOpen}`}>
+                      <SelectItem value="Boleto">Boleto</SelectItem>
+                      <SelectItem value="PIX">PIX</SelectItem>
+                      <SelectItem value="Cartão">Cartão</SelectItem>
+                      <SelectItem value="Dinheiro">Dinheiro</SelectItem>
+                      <SelectItem value="Transferência">Transferência</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="status" className="text-sm font-medium">
+                    Status
+                  </Label>
+                  <Select value={newTransacao.status} onValueChange={(value) => setNewTransacao({ ...newTransacao, status: value })}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione o status" />
+                    </SelectTrigger>
+                    <SelectContent key={`status-new-${isDialogOpen}`}>
+                      <SelectItem value="Pago">Pago</SelectItem>
+                      <SelectItem value="Pendente">Pendente</SelectItem>
+                      <SelectItem value="Atrasado">Atrasado</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <DialogFooter className="flex gap-2">
+                <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
+                  Cancelar
+                </Button>
+                <Button type="submit" className="bg-accent hover:bg-accent/90">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Cadastrar Transação
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
+
+        {/* View Transaction Dialog */}
+        <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
+          <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Eye className="h-5 w-5" />
+                Detalhes da Transação
+              </DialogTitle>
+            </DialogHeader>
+            {viewTransacao && (
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label className="text-sm font-medium">ID</Label>
+                    <p className="font-mono text-sm">{viewTransacao.id}</p>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium">Tipo</Label>
+                    <div className="flex items-center gap-2">
+                      {viewTransacao.tipo === 'entrada' ?
+                        <TrendingUp className="h-4 w-4 text-green-600" /> :
+                        <TrendingDown className="h-4 w-4 text-red-600" />
+                      }
+                      <span className={`capitalize ${viewTransacao.tipo === 'entrada' ? 'text-green-600' : 'text-red-600'}`}>
+                        {viewTransacao.tipo}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <Label className="text-sm font-medium">Descrição</Label>
+                  <p>{viewTransacao.descricao}</p>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label className="text-sm font-medium">Valor</Label>
+                    <p className={`font-bold ${viewTransacao.tipo === 'entrada' ? 'text-green-600' : 'text-red-600'}`}>
+                      {viewTransacao.tipo === 'entrada' ? '+' : '-'} {formatCurrency(viewTransacao.valor)}
+                    </p>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium">Data</Label>
+                    <p>{viewTransacao.data}</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label className="text-sm font-medium">Categoria</Label>
+                    <p>{viewTransacao.categoria}</p>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium">Forma de Pagamento</Label>
+                    <p>{viewTransacao.formaPagamento}</p>
+                  </div>
+                </div>
+                <div>
+                  <Label className="text-sm font-medium">Status</Label>
+                  <Badge className={statusColors[viewTransacao.status]}>{viewTransacao.status}</Badge>
+                </div>
+              </div>
+            )}
+            <DialogFooter>
+              <Button onClick={() => setIsViewDialogOpen(false)}>Fechar</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Edit Transaction Dialog */}
+        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+          <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Edit className="h-5 w-5" />
+                Editar Transação
+              </DialogTitle>
+            </DialogHeader>
+            {editTransacao && (
+              <form onSubmit={(e) => {
+                e.preventDefault();
+                handleUpdateTransacao();
+              }} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-tipo" className="text-sm font-medium">
+                      Tipo *
+                    </Label>
+                    <Select value={editTransacao.tipo} onValueChange={(value) => setEditTransacao({ ...editTransacao, tipo: value as 'entrada' | 'saida' })}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione o tipo" />
+                      </SelectTrigger>
+                      <SelectContent key={`tipo-edit-${isEditDialogOpen}`}>
+                        <SelectItem value="entrada">Entrada</SelectItem>
+                        <SelectItem value="saida">Saída</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-valor" className="text-sm font-medium">
+                      Valor *
+                    </Label>
+                    <div className="relative">
+                      <Input
+                        id="edit-valor"
+                        type="number"
+                        step="0.01"
+                        placeholder="0,00"
+                        value={String(editTransacao.valor)}
+                        onChange={(e) => setEditTransacao({ ...editTransacao, valor: parseFloat(e.target.value) || 0 })}
+                        className="pl-10"
+                        required
+                      />
+                      <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    </div>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-data" className="text-sm font-medium">
+                      Data *
+                    </Label>
+                    <div className="relative">
+                      <Input
+                        id="edit-data"
+                        type="date"
+                        value={editTransacao.data}
+                        onChange={(e) => setEditTransacao({ ...editTransacao, data: e.target.value })}
+                        className="pl-10"
+                        required
+                      />
+                      <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-categoria" className="text-sm font-medium">
+                      Categoria *
+                    </Label>
+                    <Select value={editTransacao.categoria} onValueChange={(value) => setEditTransacao({ ...editTransacao, categoria: value })}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione a categoria" />
+                      </SelectTrigger>
+                      <SelectContent key={`categoria-edit-${isEditDialogOpen}`}>
+                        <SelectItem value="Vendas">Vendas</SelectItem>
+                        <SelectItem value="Serviços">Serviços</SelectItem>
+                        <SelectItem value="Produtos">Produtos</SelectItem>
+                        <SelectItem value="Outros">Outros</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-descricao" className="text-sm font-medium">
+                    Descrição *
+                  </Label>
+                  <div className="relative">
+                    <Input
+                      id="edit-descricao"
+                      placeholder="Descrição da transação"
+                      value={editTransacao.descricao}
+                      onChange={(e) => setEditTransacao({ ...editTransacao, descricao: e.target.value })}
+                      className="pl-10"
+                      required
+                    />
+                    <FileText className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-formaPagamento" className="text-sm font-medium">
+                      Forma de Pagamento
+                    </Label>
+                    <Select value={editTransacao.formaPagamento} onValueChange={(value) => setEditTransacao({ ...editTransacao, formaPagamento: value })}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione a forma" />
+                      </SelectTrigger>
+                      <SelectContent key={`pagamento-edit-${isEditDialogOpen}`}>
+                        <SelectItem value="Boleto">Boleto</SelectItem>
+                        <SelectItem value="PIX">PIX</SelectItem>
+                        <SelectItem value="Cartão">Cartão</SelectItem>
+                        <SelectItem value="Dinheiro">Dinheiro</SelectItem>
+                        <SelectItem value="Transferência">Transferência</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-status" className="text-sm font-medium">
+                      Status
+                    </Label>
+                    <Select value={editTransacao.status} onValueChange={(value) => setEditTransacao({ ...editTransacao, status: value })}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione o status" />
+                      </SelectTrigger>
+                      <SelectContent key={`status-edit-${isEditDialogOpen}`}>
+                        <SelectItem value="Pago">Pago</SelectItem>
+                        <SelectItem value="Pendente">Pendente</SelectItem>
+                        <SelectItem value="Atrasado">Atrasado</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <DialogFooter className="flex gap-2">
+                  <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+                    Cancelar
+                  </Button>
+                  <Button type="submit" className="bg-accent hover:bg-accent/90">
+                    <Edit className="h-4 w-4 mr-2" />
+                    Atualizar Transação
+                  </Button>
+                </DialogFooter>
+              </form>
+            )}
+          </DialogContent>
+        </Dialog>
 
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -80,7 +579,7 @@ const Financeiro: React.FC = () => {
           </Card>
           <Card>
             <CardContent className="pt-4">
-              <div className="text-2xl font-bold text-yellow-600">3</div>
+              <div className="text-2xl font-bold text-yellow-600">{transacoes.filter(t => t.status === 'Pendente').length}</div>
               <p className="text-sm text-muted-foreground">Pendentes</p>
             </CardContent>
           </Card>
@@ -104,43 +603,106 @@ const Financeiro: React.FC = () => {
           </div>
         </div>
 
-        {/* Transações List */}
+        {/* Transações Table */}
         <Card>
           <CardHeader>
             <CardTitle>Transações</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {filteredTransacoes.map((tr) => (
-                <div key={tr.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
-                  <div className="flex items-center gap-4">
-                    <div className={`p-2 rounded-full ${tr.tipo === 'entrada' ? 'bg-green-100' : 'bg-red-100'}`}>
-                      {tr.tipo === 'entrada' ? 
-                        <TrendingUp className="h-4 w-4 text-green-600" /> : 
-                        <TrendingDown className="h-4 w-4 text-red-600" />
-                      }
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-3 mb-1">
-                        <span className="font-medium text-foreground">{tr.descricao}</span>
-                        <Badge className={statusColors[tr.status]}>{tr.status}</Badge>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>ID</TableHead>
+                  <TableHead>Descrição</TableHead>
+                  <TableHead>Tipo</TableHead>
+                  <TableHead>Valor</TableHead>
+                  <TableHead>Data</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="w-[70px]">Ações</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredTransacoes.map((tr) => (
+                  <TableRow key={tr.id}>
+                    <TableCell className="font-mono text-sm">{tr.id}</TableCell>
+                    <TableCell className="font-medium">{tr.descricao}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        {tr.tipo === 'entrada' ? 
+                          <TrendingUp className="h-4 w-4 text-green-600" /> : 
+                          <TrendingDown className="h-4 w-4 text-red-600" />
+                        }
+                        <span className={`capitalize ${tr.tipo === 'entrada' ? 'text-green-600' : 'text-red-600'}`}>
+                          {tr.tipo}
+                        </span>
                       </div>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Calendar className="h-3 w-3" /> {tr.data}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <span className={`font-bold ${tr.tipo === 'entrada' ? 'text-green-600' : 'text-red-600'}`}>
+                    </TableCell>
+                    <TableCell className={`font-bold ${tr.tipo === 'entrada' ? 'text-green-600' : 'text-red-600'}`}>
                       {tr.tipo === 'entrada' ? '+' : '-'} {formatCurrency(tr.valor)}
-                    </span>
-                    <Button variant="ghost" size="icon">
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
+                    </TableCell>
+                    <TableCell>{tr.data}</TableCell>
+                    <TableCell>
+                      <Badge className={statusColors[tr.status]}>{tr.status}</Badge>
+                    </TableCell>
+                    <TableCell>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => handleViewTransacao(tr)}>
+                            <Eye className="h-4 w-4 mr-2" />
+                            Ver Detalhes
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleEditTransacao(tr)}>
+                            <Edit className="h-4 w-4 mr-2" />
+                            Editar
+                          </DropdownMenuItem>
+                          <DropdownMenuSub>
+                            <DropdownMenuSubTrigger>
+                              <Edit className="h-4 w-4 mr-2" />
+                              Alterar Status
+                            </DropdownMenuSubTrigger>
+                            <DropdownMenuSubContent>
+                              <DropdownMenuItem
+                                onClick={() => handleStatusChange(tr, 'Pago')}
+                                disabled={tr.status === 'Pago'}
+                              >
+                                <Badge className={statusColors['Pago']}>Pago</Badge>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => handleStatusChange(tr, 'Pendente')}
+                                disabled={tr.status === 'Pendente'}
+                              >
+                                <Badge className={statusColors['Pendente']}>Pendente</Badge>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => handleStatusChange(tr, 'Atrasado')}
+                                disabled={tr.status === 'Atrasado'}
+                              >
+                                <Badge className={statusColors['Atrasado']}>Atrasado</Badge>
+                              </DropdownMenuItem>
+                            </DropdownMenuSubContent>
+                          </DropdownMenuSub>
+                          <DropdownMenuItem
+                            onClick={() => {
+                              setTransacoes(transacoes.filter(t => t.id !== tr.id));
+                              console.log('Delete transaction:', tr.id);
+                            }}
+                            className="text-red-600"
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Excluir
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </CardContent>
         </Card>
       </div>
