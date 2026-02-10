@@ -265,7 +265,7 @@ const Pedidos: React.FC = () => {
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione a origem" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent position="popper" sideOffset={5}>
                       <SelectItem value="orcamento">Orçamento</SelectItem>
                       <SelectItem value="cliente">Cliente Existente</SelectItem>
                     </SelectContent>
@@ -585,7 +585,7 @@ const Pedidos: React.FC = () => {
                         <SelectTrigger id="edit-origem">
                           <SelectValue placeholder="Selecione a origem" />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent position="popper" sideOffset={5}>
                           <SelectItem value="orcamento">Orçamento</SelectItem>
                           <SelectItem value="cliente">Cliente Existente</SelectItem>
                         </SelectContent>

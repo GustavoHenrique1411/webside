@@ -390,7 +390,7 @@ const Relatorios: React.FC = () => {
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione o período" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent position="popper" sideOffset={5}>
                         <SelectItem value="mes-atual">Mês Atual</SelectItem>
                         <SelectItem value="mes-anterior">Mês Anterior</SelectItem>
                         <SelectItem value="ultimos-3-meses">Últimos 3 Meses</SelectItem>
@@ -406,7 +406,7 @@ const Relatorios: React.FC = () => {
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione o formato" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent position="popper" sideOffset={5}>
                         <SelectItem value="pdf">PDF</SelectItem>
                         <SelectItem value="excel">Excel</SelectItem>
                         <SelectItem value="csv">CSV</SelectItem>

@@ -273,7 +273,7 @@ const Clientes: React.FC = () => {
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione o porte" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent position="popper" sideOffset={5}>
                         <SelectItem value="ME">Microempresa (ME)</SelectItem>
                         <SelectItem value="EPP">Empresa de Pequeno Porte (EPP)</SelectItem>
                         <SelectItem value="MEI">Microempreendedor Individual (MEI)</SelectItem>
@@ -589,7 +589,7 @@ const Clientes: React.FC = () => {
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione o porte" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent position="popper" sideOffset={5}>
                         <SelectItem value="ME">Microempresa (ME)</SelectItem>
                         <SelectItem value="EPP">Empresa de Pequeno Porte (EPP)</SelectItem>
                         <SelectItem value="MEI">Microempreendedor Individual (MEI)</SelectItem>
@@ -622,7 +622,7 @@ const Clientes: React.FC = () => {
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione o status" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent position="popper" sideOffset={5}>
                       <SelectItem value="Ativo">Ativo</SelectItem>
                       <SelectItem value="Inativo">Inativo</SelectItem>
                     </SelectContent>

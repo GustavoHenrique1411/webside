@@ -12,7 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent } from '@/components/ui/dropdown-menu';
 import { Textarea } from '@/components/ui/textarea';
 import { apiService } from '@/lib/api';
-import { useToast } from '@/hooks/use-toast';
+import { useNotifications } from '@/components/NotificationSystem';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import DocumentGenerator from '@/components/MeetingMinutesGenerator';
@@ -52,7 +52,7 @@ const statusColors: Record<string, string> = {
 };
 
 const Orcamentos: React.FC = () => {
-  const { toast } = useToast();
+  const notifications = useNotifications();
   const [search, setSearch] = useState('');
   const [orcamentos, setOrcamentos] = useState<Orcamento[]>([]);
   const [loading, setLoading] = useState(true);
@@ -108,18 +108,14 @@ const Orcamentos: React.FC = () => {
         setOrcamentos(normalized);
       } catch (error) {
         console.error('Error fetching orcamentos:', error);
-        toast({
-          title: 'Erro',
-          description: 'Não foi possível carregar os orçamentos.',
-          variant: 'destructive',
-        });
+        notifications.error('Erro', 'Não foi possível carregar os orçamentos.');
       } finally {
         setLoading(false);
       }
     };
 
     fetchOrcamentos();
-  }, [toast]);
+  }, [notifications]);
 
   const filteredOrcamentos = orcamentos.filter(orc =>
     orc && typeof orc === 'object' && (
@@ -154,11 +150,7 @@ const Orcamentos: React.FC = () => {
       setIsViewDialogOpen(true);
     } catch (error) {
       console.error('Error fetching orcamento details:', error);
-      toast({
-        title: 'Erro',
-        description: 'Não foi possível carregar os detalhes do orçamento.',
-        variant: 'destructive',
-      });
+      notifications.error('Erro', 'Não foi possível carregar os detalhes do orçamento.');
     }
   };
 
@@ -182,11 +174,7 @@ const Orcamentos: React.FC = () => {
       setIsDocDialogOpen(true);
     } catch (error) {
       console.error('Error fetching orcamento details for document:', error);
-      toast({
-        title: 'Erro',
-        description: 'Não foi possível carregar os dados do orçamento para gerar o documento.',
-        variant: 'destructive',
-      });
+      notifications.error('Erro', 'Não foi possível carregar os dados do orçamento para gerar o documento.');
     }
   };
 
@@ -218,17 +206,10 @@ const Orcamentos: React.FC = () => {
       try {
         await apiService.deleteOrcamento(typeof id === 'string' ? parseInt(id) : id);
         setOrcamentos(orcamentos.filter(orc => orc.id !== id));
-        toast({
-          title: 'Sucesso',
-          description: 'Orçamento excluído com sucesso.',
-        });
+        notifications.success('Sucesso', 'Orçamento excluído com sucesso.');
       } catch (error) {
         console.error('Error deleting orcamento:', error);
-        toast({
-          title: 'Erro',
-          description: 'Não foi possível excluir o orçamento.',
-          variant: 'destructive',
-        });
+        notifications.error('Erro', 'Não foi possível excluir o orçamento.');
       }
     }
   };
@@ -241,17 +222,10 @@ const Orcamentos: React.FC = () => {
           ? { ...orc, status: newStatus }
           : orc
       ));
-      toast({
-        title: 'Sucesso',
-        description: 'Status do orçamento atualizado com sucesso.',
-      });
+      notifications.success('Sucesso', 'Status do orçamento atualizado com sucesso.');
     } catch (error) {
       console.error('Error updating orcamento status:', error);
-      toast({
-        title: 'Erro',
-        description: 'Não foi possível atualizar o status do orçamento.',
-        variant: 'destructive',
-      });
+      notifications.error('Erro', 'Não foi possível atualizar o status do orçamento.');
     }
   };
 
@@ -307,18 +281,12 @@ const Orcamentos: React.FC = () => {
       if (isEditMode) {
         // Update existing orcamento
         await apiService.updateOrcamento(Number(viewingOrcamento.id), transformedData);
-        toast({
-          title: 'Sucesso',
-          description: 'Orçamento atualizado com sucesso.',
-        });
+        notifications.success('Sucesso', 'Orçamento atualizado com sucesso.');
         setIsEditMode(false);
       } else {
         // Create new orcamento
         await apiService.createOrcamento(transformedData);
-        toast({
-          title: 'Sucesso',
-          description: 'Orçamento criado com sucesso.',
-        });
+        notifications.success('Sucesso', 'Orçamento criado com sucesso.');
       }
 
       // Refetch orcamentos to ensure all database tables are updated and reflected
@@ -349,11 +317,7 @@ const Orcamentos: React.FC = () => {
       setIsDialogOpen(false);
     } catch (error) {
       console.error('Error saving orcamento:', error);
-      toast({
-        title: 'Erro',
-        description: 'Não foi possível salvar o orçamento.',
-        variant: 'destructive',
-      });
+      notifications.error('Erro', 'Não foi possível salvar o orçamento.');
     }
   };
 
@@ -520,11 +484,7 @@ const Orcamentos: React.FC = () => {
       setIsPdfPreviewOpen(true);
       console.log('PDF preview dialog should now be open');
     } else {
-      toast({
-        title: 'Erro',
-        description: 'Não foi possível gerar o PDF.',
-        variant: 'destructive',
-      });
+      notifications.error('Erro', 'Não foi possível gerar o PDF.');
     }
   };
 
@@ -553,16 +513,45 @@ const Orcamentos: React.FC = () => {
                 {/* Origem */}
                 <div className="space-y-2">
                   <Label className="text-sm font-medium">Origem do Orçamento</Label>
-                  <Select value={newOrcamento.origem} onValueChange={(value) => setNewOrcamento({ ...newOrcamento, origem: value })}>
+                  <Select value={newOrcamento.origem} onValueChange={(value) => setNewOrcamento({ ...newOrcamento, origem: value, leadId: '', clienteId: '' })}>
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione a origem" />
                     </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem key="lead" value="lead">Lead</SelectItem>
-                      <SelectItem key="cliente" value="cliente">Cliente Existente</SelectItem>
+                    <SelectContent position="popper" sideOffset={5} container={null}>
+                      <SelectItem value="lead">Lead</SelectItem>
+                      <SelectItem value="cliente">Cliente Existente</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
+
+                {/* Lead/Cliente Selector */}
+                {newOrcamento.origem === 'lead' && (
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Selecionar Lead (Opcional)</Label>
+                    <Input
+                      placeholder="ID do Lead ou deixe em branco para novo"
+                      value={newOrcamento.leadId}
+                      onChange={(e) => setNewOrcamento({ ...newOrcamento, leadId: e.target.value })}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Deixe em branco para criar orçamento sem vincular a um lead existente
+                    </p>
+                  </div>
+                )}
+
+                {newOrcamento.origem === 'cliente' && (
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Selecionar Cliente (Opcional)</Label>
+                    <Input
+                      placeholder="ID do Cliente ou deixe em branco para novo"
+                      value={newOrcamento.clienteId}
+                      onChange={(e) => setNewOrcamento({ ...newOrcamento, clienteId: e.target.value })}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Deixe em branco para criar orçamento sem vincular a um cliente existente
+                    </p>
+                  </div>
+                )}
 
                 {/* Company Data */}
                 <div className="space-y-4">
@@ -991,10 +980,7 @@ const Orcamentos: React.FC = () => {
                       a.click();
                       document.body.removeChild(a);
                       URL.revokeObjectURL(url);
-                      toast({
-                        title: 'Sucesso',
-                        description: 'PDF baixado com sucesso.',
-                      });
+                      notifications.success('Sucesso', 'PDF baixado com sucesso.');
                     }
                   }}
                 >
@@ -1003,11 +989,7 @@ const Orcamentos: React.FC = () => {
                 </Button>
                 <Button
                   onClick={() => {
-                    // TODO: Implement email sending functionality
-                    toast({
-                      title: 'Funcionalidade em desenvolvimento',
-                      description: 'Envio por email será implementado em breve.',
-                    });
+                    notifications.info('Funcionalidade em desenvolvimento', 'Envio por email será implementado em breve.');
                   }}
                 >
                   <Send className="h-4 w-4 mr-2" />
@@ -1015,11 +997,7 @@ const Orcamentos: React.FC = () => {
                 </Button>
                 <Button
                   onClick={() => {
-                    // TODO: Implement WhatsApp sending functionality
-                    toast({
-                      title: 'Funcionalidade em desenvolvimento',
-                      description: 'Envio por WhatsApp será implementado em breve.',
-                    });
+                    notifications.info('Funcionalidade em desenvolvimento', 'Envio por WhatsApp será implementado em breve.');
                   }}
                 >
                   <MessageCircle className="h-4 w-4 mr-2" />

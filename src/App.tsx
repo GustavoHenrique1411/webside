@@ -1,9 +1,9 @@
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { NotificationProvider } from "@/components/NotificationSystem";
+import ErrorBoundary from "@/components/ErrorBoundary";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import AdminDashboard from "./pages/AdminDashboard";
@@ -21,93 +21,95 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <AuthProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/login" element={<Login />} />
-            <Route
-              path="/admin/dashboard"
-              element={
-                <ProtectedRoute>
-                  <AdminDashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/leads"
-              element={
-                <ProtectedRoute>
-                  <Leads />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/orcamentos"
-              element={
-                <ProtectedRoute>
-                  <Orcamentos />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/pedidos"
-              element={
-                <ProtectedRoute>
-                  <Pedidos />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/financeiro"
-              element={
-                <ProtectedRoute>
-                  <Financeiro />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/clientes"
-              element={
-                <ProtectedRoute>
-                  <Clientes />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/relatorios"
-              element={
-                <ProtectedRoute>
-                  <Relatorios />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/configuracoes"
-              element={
-                <ProtectedRoute>
-                  <Configuracoes />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/perfil"
-              element={
-                <ProtectedRoute>
-                  <Perfil />
-                </ProtectedRoute>
-              }
-            />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </AuthProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
+  <ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <AuthProvider>
+          <NotificationProvider>
+            <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+              <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/login" element={<Login />} />
+              <Route
+                path="/admin/dashboard"
+                element={
+                  <ProtectedRoute>
+                    <AdminDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/leads"
+                element={
+                  <ProtectedRoute>
+                    <Leads />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/orcamentos"
+                element={
+                  <ProtectedRoute>
+                    <Orcamentos />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/pedidos"
+                element={
+                  <ProtectedRoute>
+                    <Pedidos />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/financeiro"
+                element={
+                  <ProtectedRoute>
+                    <Financeiro />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/clientes"
+                element={
+                  <ProtectedRoute>
+                    <Clientes />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/relatorios"
+                element={
+                  <ProtectedRoute>
+                    <Relatorios />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/configuracoes"
+                element={
+                  <ProtectedRoute>
+                    <Configuracoes />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/perfil"
+                element={
+                  <ProtectedRoute>
+                    <Perfil />
+                  </ProtectedRoute>
+                }
+              />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+          </NotificationProvider>
+        </AuthProvider>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </ErrorBoundary>
 );
 
 export default App;

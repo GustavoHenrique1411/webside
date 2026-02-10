@@ -216,7 +216,7 @@ const Financeiro: React.FC = () => {
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione o tipo" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent key={`tipo-new-${isDialogOpen}`}>
                       <SelectItem value="entrada">Entrada</SelectItem>
                       <SelectItem value="saida">Saída</SelectItem>
                     </SelectContent>
@@ -266,7 +266,7 @@ const Financeiro: React.FC = () => {
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione a categoria" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent key={`categoria-new-${isDialogOpen}`}>
                       <SelectItem value="Vendas">Vendas</SelectItem>
                       <SelectItem value="Serviços">Serviços</SelectItem>
                       <SelectItem value="Produtos">Produtos</SelectItem>
@@ -300,7 +300,7 @@ const Financeiro: React.FC = () => {
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione a forma" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent key={`pagamento-new-${isDialogOpen}`}>
                       <SelectItem value="Boleto">Boleto</SelectItem>
                       <SelectItem value="PIX">PIX</SelectItem>
                       <SelectItem value="Cartão">Cartão</SelectItem>
@@ -317,7 +317,7 @@ const Financeiro: React.FC = () => {
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione o status" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent key={`status-new-${isDialogOpen}`}>
                       <SelectItem value="Pago">Pago</SelectItem>
                       <SelectItem value="Pendente">Pendente</SelectItem>
                       <SelectItem value="Atrasado">Atrasado</SelectItem>
@@ -428,7 +428,7 @@ const Financeiro: React.FC = () => {
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione o tipo" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent key={`tipo-edit-${isEditDialogOpen}`}>
                         <SelectItem value="entrada">Entrada</SelectItem>
                         <SelectItem value="saida">Saída</SelectItem>
                       </SelectContent>
@@ -478,7 +478,7 @@ const Financeiro: React.FC = () => {
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione a categoria" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent key={`categoria-edit-${isEditDialogOpen}`}>
                         <SelectItem value="Vendas">Vendas</SelectItem>
                         <SelectItem value="Serviços">Serviços</SelectItem>
                         <SelectItem value="Produtos">Produtos</SelectItem>
@@ -512,7 +512,7 @@ const Financeiro: React.FC = () => {
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione a forma" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent key={`pagamento-edit-${isEditDialogOpen}`}>
                         <SelectItem value="Boleto">Boleto</SelectItem>
                         <SelectItem value="PIX">PIX</SelectItem>
                         <SelectItem value="Cartão">Cartão</SelectItem>
@@ -529,7 +529,7 @@ const Financeiro: React.FC = () => {
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione o status" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent key={`status-edit-${isEditDialogOpen}`}>
                         <SelectItem value="Pago">Pago</SelectItem>
                         <SelectItem value="Pendente">Pendente</SelectItem>
                         <SelectItem value="Atrasado">Atrasado</SelectItem>

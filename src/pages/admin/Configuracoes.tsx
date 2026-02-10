@@ -9,8 +9,10 @@ import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Building2, User, Bell, Shield, Palette, Settings, Save, CheckCircle, Loader2, Users, Plus, Edit, Trash2 } from 'lucide-react';
 import { apiService } from '@/lib/api';
+import { useNotifications } from '@/components/NotificationSystem';
 
 const Configuracoes: React.FC = () => {
+  const notifications = useNotifications();
   const [notificacoesEmail, setNotificacoesEmail] = useState(true);
   const [notificacoesPush, setNotificacoesPush] = useState(false);
   const [temaEscuro, setTemaEscuro] = useState(false);
@@ -46,10 +48,15 @@ const Configuracoes: React.FC = () => {
   const [isColaboradorDialogOpen, setIsColaboradorDialogOpen] = useState(false);
   const [editingColaborador, setEditingColaborador] = useState<any>(null);
   const [colaboradorForm, setColaboradorForm] = useState({
-    nome: '',
+    cpf: '',
+    nome_completo: '',
     email: '',
-    cargo: '',
-    departamento: ''
+    senha: '',
+    telefone: '',
+    tipo_colaborador: 'Funcionário',
+    data_admissao: new Date().toISOString().split('T')[0],
+    comissao_venda: 0,
+    comissao_recorrente: 0
   });
 
   // Fetch initial data
@@ -106,10 +113,9 @@ const Configuracoes: React.FC = () => {
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1500));
-      setSuccessMessage('Dados da empresa salvos com sucesso!');
-      setIsSuccessDialogOpen(true);
+      notifications.success('Sucesso!', 'Dados da empresa salvos com sucesso!');
     } catch (error) {
-      alert('Erro ao salvar dados da empresa. Tente novamente.');
+      notifications.error('Erro!', 'Erro ao salvar dados da empresa. Tente novamente.');
     } finally {
       setIsLoading(false);
     }
@@ -134,10 +140,23 @@ const Configuracoes: React.FC = () => {
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
-      setSuccessMessage('Preferências de notificação salvas com sucesso!');
-      setIsSuccessDialogOpen(true);
+      notifications.success('Sucesso!', 'Preferências de notificação salvas com sucesso!');
+      
+      // Demonstração das notificações
+      if (notificacoesEmail) {
+        setTimeout(() => notifications.info('Notificações por E-mail', 'Você receberá atualizações importantes por e-mail'), 1000);
+      }
+      if (notificacoesPush) {
+        setTimeout(() => notifications.info('Notificações Push', 'Você receberá alertas em tempo real'), 2000);
+      }
+      if (resumoDiario) {
+        setTimeout(() => notifications.info('Resumo Diário', 'Você receberá um resumo diário das atividades'), 3000);
+      }
+      if (alertasVencimento) {
+        setTimeout(() => notifications.warning('Alertas de Vencimento', 'Você será notificado sobre faturas e prazos'), 4000);
+      }
     } catch (error) {
-      alert('Erro ao salvar preferências. Tente novamente.');
+      notifications.error('Erro!', 'Erro ao salvar preferências. Tente novamente.');
     } finally {
       setIsLoading(false);
     }
@@ -148,10 +167,9 @@ const Configuracoes: React.FC = () => {
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
-      setSuccessMessage('Configurações de aparência salvas com sucesso!');
-      setIsSuccessDialogOpen(true);
+      notifications.success('Sucesso!', 'Configurações de aparência salvas com sucesso!');
     } catch (error) {
-      alert('Erro ao salvar configurações. Tente novamente.');
+      notifications.error('Erro!', 'Erro ao salvar configurações. Tente novamente.');
     } finally {
       setIsLoading(false);
     }
@@ -162,10 +180,9 @@ const Configuracoes: React.FC = () => {
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1500));
-      setSuccessMessage('Parâmetros do sistema salvos com sucesso!');
-      setIsSuccessDialogOpen(true);
+      notifications.success('Sucesso!', 'Parâmetros do sistema salvos com sucesso!');
     } catch (error) {
-      alert('Erro ao salvar parâmetros. Tente novamente.');
+      notifications.error('Erro!', 'Erro ao salvar parâmetros. Tente novamente.');
     } finally {
       setIsLoading(false);
     }
@@ -177,17 +194,17 @@ const Configuracoes: React.FC = () => {
     const confirmPassword = senhaData.confirmar;
 
     if (!currentPassword || !newPassword || !confirmPassword) {
-      alert('Por favor, preencha todos os campos de senha.');
+      notifications.warning('Atenção!', 'Por favor, preencha todos os campos de senha.');
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      alert('A nova senha e a confirmação não coincidem.');
+      notifications.error('Erro!', 'A nova senha e a confirmação não coincidem.');
       return;
     }
 
     if (newPassword.length < 8) {
-      alert('A nova senha deve ter pelo menos 8 caracteres.');
+      notifications.warning('Atenção!', 'A nova senha deve ter pelo menos 8 caracteres.');
       return;
     }
 
@@ -195,11 +212,10 @@ const Configuracoes: React.FC = () => {
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 2000));
-      setSuccessMessage('Senha alterada com sucesso!');
-      setIsSuccessDialogOpen(true);
+      notifications.success('Sucesso!', 'Senha alterada com sucesso!');
       setSenhaData({ atual: '', nova: '', confirmar: '' });
     } catch (error) {
-      alert('Erro ao alterar senha. Tente novamente.');
+      notifications.error('Erro!', 'Erro ao alterar senha. Tente novamente.');
     } finally {
       setIsLoading(false);
     }
@@ -210,10 +226,9 @@ const Configuracoes: React.FC = () => {
     try {
       // Simulate 2FA activation
       await new Promise(resolve => setTimeout(resolve, 2000));
-      setSuccessMessage('Autenticação de dois fatores ativada com sucesso!');
-      setIsSuccessDialogOpen(true);
+      notifications.success('Sucesso!', 'Autenticação de dois fatores ativada com sucesso!');
     } catch (error) {
-      alert('Erro ao ativar 2FA. Tente novamente.');
+      notifications.error('Erro!', 'Erro ao ativar 2FA. Tente novamente.');
     } finally {
       setIsLoading(false);
     }
@@ -223,13 +238,12 @@ const Configuracoes: React.FC = () => {
     setIsLoading(true);
     try {
       await apiService.createColaborador(colaboradorData);
-      setSuccessMessage('Colaborador adicionado com sucesso!');
-      setIsSuccessDialogOpen(true);
+      notifications.success('Sucesso!', 'Colaborador adicionado com sucesso!');
       // Refresh colaboradores list
       const colaboradoresData = await apiService.getColaboradores() as any[];
       setColaboradores(colaboradoresData || []);
     } catch (error) {
-      alert('Erro ao adicionar colaborador. Tente novamente.');
+      notifications.error('Erro!', 'Erro ao adicionar colaborador. Tente novamente.');
     } finally {
       setIsLoading(false);
     }
@@ -239,13 +253,12 @@ const Configuracoes: React.FC = () => {
     setIsLoading(true);
     try {
       await apiService.updateColaborador(id, colaboradorData);
-      setSuccessMessage('Colaborador atualizado com sucesso!');
-      setIsSuccessDialogOpen(true);
+      notifications.success('Sucesso!', 'Colaborador atualizado com sucesso!');
       // Refresh colaboradores list
       const colaboradoresData = await apiService.getColaboradores() as any[];
       setColaboradores(colaboradoresData || []);
     } catch (error) {
-      alert('Erro ao atualizar colaborador. Tente novamente.');
+      notifications.error('Erro!', 'Erro ao atualizar colaborador. Tente novamente.');
     } finally {
       setIsLoading(false);
     }
@@ -257,13 +270,12 @@ const Configuracoes: React.FC = () => {
     setIsLoading(true);
     try {
       await apiService.deleteColaborador(id);
-      setSuccessMessage('Colaborador excluído com sucesso!');
-      setIsSuccessDialogOpen(true);
+      notifications.success('Sucesso!', 'Colaborador excluído com sucesso!');
       // Refresh colaboradores list
       const colaboradoresData = await apiService.getColaboradores() as any[];
       setColaboradores(colaboradoresData || []);
     } catch (error) {
-      alert('Erro ao excluir colaborador. Tente novamente.');
+      notifications.error('Erro!', 'Erro ao excluir colaborador. Tente novamente.');
     } finally {
       setIsLoading(false);
     }
@@ -303,7 +315,7 @@ const Configuracoes: React.FC = () => {
           </TabsList>
 
           {/* Empresa */}
-          <TabsContent value="empresa">
+          <TabsContent value="empresa" key="tab-empresa">
             <Card>
               <CardHeader>
                 <CardTitle>Dados da Empresa</CardTitle>
@@ -390,72 +402,128 @@ const Configuracoes: React.FC = () => {
           </TabsContent>
 
           {/* Usuários */}
-          <TabsContent value="usuarios">
+          <TabsContent value="usuarios" key="tab-usuarios">
             <div className="space-y-6">
               {/* Gerenciamento de Colaboradores */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Gerenciamento de Colaboradores</CardTitle>
-                  <CardDescription>Adicione, edite ou remova colaboradores do sistema</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
                   <div className="flex justify-between items-center">
                     <div>
-                      <h3 className="text-lg font-medium">Colaboradores</h3>
-                      <p className="text-sm text-muted-foreground">Lista de todos os colaboradores cadastrados</p>
+                      <CardTitle>Gerenciamento de Colaboradores</CardTitle>
+                      <CardDescription>Adicione, edite ou remova colaboradores do sistema</CardDescription>
                     </div>
                     <Button
                       className="bg-accent hover:bg-accent/90 text-accent-foreground"
                       onClick={() => {
                         setEditingColaborador(null);
-                        setColaboradorForm({ nome: '', email: '', cargo: '', departamento: '' });
+                        setColaboradorForm({
+                          cpf: '',
+                          nome_completo: '',
+                          email: '',
+                          senha: '',
+                          telefone: '',
+                          tipo_colaborador: 'Funcionário',
+                          data_admissao: new Date().toISOString().split('T')[0],
+                          comissao_venda: 0,
+                          comissao_recorrente: 0
+                        });
                         setIsColaboradorDialogOpen(true);
                       }}
                     >
-                      <Plus className="h-4 w-4 mr-2" /> Adicionar Colaborador
+                      <Plus className="h-4 w-4 mr-2" /> Novo Colaborador
                     </Button>
                   </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
 
-                  <div className="space-y-2">
+                  <div className="border rounded-lg overflow-hidden">
                     {colaboradores.length === 0 ? (
-                      <div className="text-center py-8 text-muted-foreground">
-                        Nenhum colaborador cadastrado ainda.
+                      <div className="text-center py-12 text-muted-foreground bg-muted/20">
+                        <Users className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                        <p className="font-medium">Nenhum colaborador cadastrado</p>
+                        <p className="text-sm mt-1">Clique em "Novo Colaborador" para começar</p>
                       </div>
                     ) : (
-                      colaboradores.map((colaborador: any) => (
-                        <div key={colaborador.id} className="flex items-center justify-between p-4 border rounded-lg">
-                          <div>
-                            <p className="font-medium">{colaborador.nome}</p>
-                            <p className="text-sm text-muted-foreground">{colaborador.email}</p>
-                            <p className="text-sm text-muted-foreground">{colaborador.cargo} - {colaborador.departamento}</p>
-                          </div>
-                          <div className="flex gap-2">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => {
-                                setEditingColaborador(colaborador);
-                                setColaboradorForm({
-                                  nome: colaborador.nome,
-                                  email: colaborador.email,
-                                  cargo: colaborador.cargo,
-                                  departamento: colaborador.departamento
-                                });
-                                setIsColaboradorDialogOpen(true);
-                              }}
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleDeleteColaborador(colaborador.id)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      ))
+                      <div className="overflow-x-auto">
+                        <table className="w-full">
+                          <thead className="bg-muted/50 border-b">
+                            <tr>
+                              <th className="text-left p-3 font-medium text-sm">Nome</th>
+                              <th className="text-left p-3 font-medium text-sm hidden md:table-cell">E-mail</th>
+                              <th className="text-left p-3 font-medium text-sm hidden lg:table-cell">Cargo</th>
+                              <th className="text-left p-3 font-medium text-sm hidden lg:table-cell">Departamento</th>
+                              <th className="text-left p-3 font-medium text-sm hidden sm:table-cell">Status</th>
+                              <th className="text-right p-3 font-medium text-sm">Ações</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y">
+                            {colaboradores.map((colaborador: any) => (
+                              <tr key={colaborador.id_colaborador} className="hover:bg-muted/20 transition-colors">
+                                <td className="p-3">
+                                  <div>
+                                    <p className="font-medium text-sm">{colaborador.nome_completo}</p>
+                                    <p className="text-xs text-muted-foreground md:hidden">{colaborador.email}</p>
+                                  </div>
+                                </td>
+                                <td className="p-3 text-sm text-muted-foreground hidden md:table-cell">
+                                  {colaborador.email}
+                                </td>
+                                <td className="p-3 text-sm hidden lg:table-cell">
+                                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                    {colaborador.tipo_colaborador || 'Funcionário'}
+                                  </span>
+                                </td>
+                                <td className="p-3 text-sm text-muted-foreground hidden lg:table-cell">
+                                  {colaborador.departamento || '-'}
+                                </td>
+                                <td className="p-3 hidden sm:table-cell">
+                                  <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                                    colaborador.ativo ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                                  }`}>
+                                    {colaborador.ativo ? 'Ativo' : 'Inativo'}
+                                  </span>
+                                </td>
+                                <td className="p-3">
+                                  <div className="flex justify-end gap-2">
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => {
+                                        setEditingColaborador(colaborador);
+                                        setColaboradorForm({
+                                          cpf: colaborador.cpf || '',
+                                          nome_completo: colaborador.nome_completo,
+                                          email: colaborador.email,
+                                          senha: '', // Não preencher senha ao editar
+                                          telefone: colaborador.telefone || '',
+                                          tipo_colaborador: colaborador.tipo_colaborador || 'Funcionário',
+                                          data_admissao: colaborador.data_admissao ? colaborador.data_admissao.split('T')[0] : new Date().toISOString().split('T')[0],
+                                          comissao_venda: colaborador.comissao_venda || 0,
+                                          comissao_recorrente: colaborador.comissao_recorrente || 0
+                                        });
+                                        setIsColaboradorDialogOpen(true);
+                                      }}
+                                      className="hover:bg-blue-100 hover:text-blue-700"
+                                    >
+                                      <Edit className="h-4 w-4" />
+                                      <span className="ml-1 hidden sm:inline">Editar</span>
+                                    </Button>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => handleDeleteColaborador(colaborador.id_colaborador)}
+                                      className="hover:bg-red-100 hover:text-red-700"
+                                    >
+                                      <Trash2 className="h-4 w-4" />
+                                      <span className="ml-1 hidden sm:inline">Excluir</span>
+                                    </Button>
+                                  </div>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
                     )}
                   </div>
                 </CardContent>
@@ -464,7 +532,7 @@ const Configuracoes: React.FC = () => {
           </TabsContent>
 
           {/* Notificações */}
-          <TabsContent value="notificacoes">
+          <TabsContent value="notificacoes" key="tab-notificacoes">
             <Card>
               <CardHeader>
                 <CardTitle>Preferências de Notificação</CardTitle>
@@ -500,8 +568,13 @@ const Configuracoes: React.FC = () => {
                   <Switch checked={alertasVencimento} onCheckedChange={setAlertasVencimento} />
                 </div>
                 <Button
+                  type="button"
                   className="bg-accent hover:bg-accent/90 text-accent-foreground"
-                  onClick={handleSaveNotificacoes}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleSaveNotificacoes();
+                  }}
                   disabled={isLoading}
                 >
                   {isLoading ? 'Salvando...' : <><Save className="h-4 w-4 mr-2" /> Salvar Preferências</>}
@@ -511,7 +584,7 @@ const Configuracoes: React.FC = () => {
           </TabsContent>
 
           {/* Segurança */}
-          <TabsContent value="seguranca">
+          <TabsContent value="seguranca" key="tab-seguranca">
             <Card>
               <CardHeader>
                 <CardTitle>Segurança da Conta</CardTitle>
@@ -581,7 +654,7 @@ const Configuracoes: React.FC = () => {
           </TabsContent>
 
           {/* Aparência */}
-          <TabsContent value="aparencia">
+          <TabsContent value="aparencia" key="tab-aparencia">
             <Card>
               <CardHeader>
                 <CardTitle>Aparência</CardTitle>
@@ -614,7 +687,7 @@ const Configuracoes: React.FC = () => {
           </TabsContent>
 
           {/* Sistema */}
-          <TabsContent value="parametros">
+          <TabsContent value="parametros" key="tab-parametros">
             <Card>
               <CardHeader>
                 <CardTitle>Parâmetros do Sistema</CardTitle>
@@ -713,44 +786,133 @@ const Configuracoes: React.FC = () => {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {editingColaborador ? 'Editar Colaborador' : 'Adicionar Colaborador'}
+              {editingColaborador ? 'Editar Colaborador' : 'Novo Colaborador'}
             </DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="colaboradorNome">Nome *</Label>
-              <Input
-                id="colaboradorNome"
-                value={colaboradorForm.nome}
-                onChange={(e) => setColaboradorForm({ ...colaboradorForm, nome: e.target.value })}
-                required
-              />
+          <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="colaboradorNome">Nome Completo *</Label>
+                <Input
+                  id="colaboradorNome"
+                  value={colaboradorForm.nome_completo}
+                  onChange={(e) => setColaboradorForm({ ...colaboradorForm, nome_completo: e.target.value })}
+                  placeholder="João da Silva"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="colaboradorCPF">CPF *</Label>
+                <Input
+                  id="colaboradorCPF"
+                  value={colaboradorForm.cpf}
+                  onChange={(e) => setColaboradorForm({ ...colaboradorForm, cpf: e.target.value })}
+                  placeholder="000.000.000-00"
+                  required
+                />
+              </div>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="colaboradorEmail">E-mail *</Label>
-              <Input
-                id="colaboradorEmail"
-                type="email"
-                value={colaboradorForm.email}
-                onChange={(e) => setColaboradorForm({ ...colaboradorForm, email: e.target.value })}
-                required
-              />
+
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="colaboradorEmail">E-mail *</Label>
+                <Input
+                  id="colaboradorEmail"
+                  type="email"
+                  value={colaboradorForm.email}
+                  onChange={(e) => setColaboradorForm({ ...colaboradorForm, email: e.target.value })}
+                  placeholder="joao@empresa.com"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="colaboradorTelefone">Telefone *</Label>
+                <Input
+                  id="colaboradorTelefone"
+                  value={colaboradorForm.telefone}
+                  onChange={(e) => setColaboradorForm({ ...colaboradorForm, telefone: e.target.value })}
+                  placeholder="(11) 99999-9999"
+                  required
+                />
+              </div>
             </div>
+
             <div className="space-y-2">
-              <Label htmlFor="colaboradorCargo">Cargo</Label>
+              <Label htmlFor="colaboradorSenha">{editingColaborador ? 'Nova Senha (deixe em branco para manter)' : 'Senha *'}</Label>
               <Input
-                id="colaboradorCargo"
-                value={colaboradorForm.cargo}
-                onChange={(e) => setColaboradorForm({ ...colaboradorForm, cargo: e.target.value })}
+                id="colaboradorSenha"
+                type="password"
+                value={colaboradorForm.senha}
+                onChange={(e) => setColaboradorForm({ ...colaboradorForm, senha: e.target.value })}
+                placeholder="Mínimo 8 caracteres"
+                required={!editingColaborador}
               />
+              {!editingColaborador && (
+                <p className="text-xs text-muted-foreground">A senha deve ter no mínimo 8 caracteres</p>
+              )}
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="colaboradorDepartamento">Departamento</Label>
-              <Input
-                id="colaboradorDepartamento"
-                value={colaboradorForm.departamento}
-                onChange={(e) => setColaboradorForm({ ...colaboradorForm, departamento: e.target.value })}
-              />
+
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="colaboradorTipo">Tipo de Colaborador *</Label>
+                <select
+                  id="colaboradorTipo"
+                  value={colaboradorForm.tipo_colaborador}
+                  onChange={(e) => setColaboradorForm({ ...colaboradorForm, tipo_colaborador: e.target.value })}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  required
+                >
+                  <option value="Funcionário">Funcionário</option>
+                  <option value="Gerente">Gerente</option>
+                  <option value="Diretor">Diretor</option>
+                  <option value="Vendedor">Vendedor</option>
+                  <option value="Suporte">Suporte</option>
+                  <option value="Administrativo">Administrativo</option>
+                  <option value="Financeiro">Financeiro</option>
+                </select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="colaboradorDataAdmissao">Data de Admissão *</Label>
+                <Input
+                  id="colaboradorDataAdmissao"
+                  type="date"
+                  value={colaboradorForm.data_admissao}
+                  onChange={(e) => setColaboradorForm({ ...colaboradorForm, data_admissao: e.target.value })}
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="border-t pt-4 mt-4">
+              <h4 className="font-medium mb-3 text-sm">Comissões</h4>
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="colaboradorComissaoVenda">Comissão por Venda (%)</Label>
+                  <Input
+                    id="colaboradorComissaoVenda"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    max="100"
+                    value={colaboradorForm.comissao_venda}
+                    onChange={(e) => setColaboradorForm({ ...colaboradorForm, comissao_venda: parseFloat(e.target.value) || 0 })}
+                    placeholder="0.00"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="colaboradorComissaoRecorrente">Comissão Recorrente (%)</Label>
+                  <Input
+                    id="colaboradorComissaoRecorrente"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    max="100"
+                    value={colaboradorForm.comissao_recorrente}
+                    onChange={(e) => setColaboradorForm({ ...colaboradorForm, comissao_recorrente: parseFloat(e.target.value) || 0 })}
+                    placeholder="0.00"
+                  />
+                </div>
+              </div>
             </div>
           </div>
           <div className="flex justify-end gap-2">
@@ -760,12 +922,38 @@ const Configuracoes: React.FC = () => {
             <Button
               className="bg-accent hover:bg-accent/90 text-accent-foreground"
               onClick={async () => {
-                if (!colaboradorForm.nome || !colaboradorForm.email) {
-                  alert('Nome e e-mail são obrigatórios.');
+                // Validações
+                if (!colaboradorForm.nome_completo || !colaboradorForm.email || !colaboradorForm.cpf || !colaboradorForm.telefone) {
+                  notifications.warning('Atenção!', 'Por favor, preencha todos os campos obrigatórios.');
                   return;
                 }
+                
+                if (!editingColaborador && !colaboradorForm.senha) {
+                  notifications.warning('Atenção!', 'A senha é obrigatória para novos colaboradores.');
+                  return;
+                }
+                
+                if (colaboradorForm.senha && colaboradorForm.senha.length < 8) {
+                  notifications.warning('Atenção!', 'A senha deve ter no mínimo 8 caracteres.');
+                  return;
+                }
+
+                // Validação de CPF (formato básico)
+                const cpfRegex = /^\d{3}\.\d{3}\.\d{3}-\d{2}$/;
+                if (!cpfRegex.test(colaboradorForm.cpf)) {
+                  notifications.error('Erro!', 'CPF inválido. Use o formato: 000.000.000-00');
+                  return;
+                }
+
+                // Validação de email
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(colaboradorForm.email)) {
+                  notifications.error('Erro!', 'E-mail inválido.');
+                  return;
+                }
+
                 if (editingColaborador) {
-                  await handleEditColaborador(editingColaborador.id, colaboradorForm);
+                  await handleEditColaborador(editingColaborador.id_colaborador, colaboradorForm);
                 } else {
                   await handleAddColaborador(colaboradorForm);
                 }

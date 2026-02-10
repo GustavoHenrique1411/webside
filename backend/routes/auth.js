@@ -8,10 +8,6 @@ const authMiddleware = require('../middleware/auth');
 
 const router = express.Router();
 
-router.get('/test-db', authController.testDatabase);
-
-router.post('/reset-admin-password', authController.resetAdminPassword);
-router.post('/register', authController.register);
 // POST /api/auth/create-first-admin - Create first admin user if none exists
 router.post('/create-first-admin', async (req, res) => {
   try {
@@ -358,6 +354,32 @@ router.get('/profile', async (req, res) => {
     // Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
 
+    // Check if this is a test user (IDs 1, 998, 999)
+    const TEST_USER_IDS = [1, 998, 999];
+    if (TEST_USER_IDS.includes(decoded.id)) {
+      // Return test user data without database query
+      const testUsers = {
+        1: { nome: 'Administrador', email: 'admin@empresa.com', tipo: 'funcionario' },
+        998: { nome: 'Usuário Demo', email: 'demo@demo.com', tipo: 'funcionario' },
+        999: { nome: 'Usuário Teste', email: 'test@test.com', tipo: 'funcionario' }
+      };
+      
+      const testUser = testUsers[decoded.id] || testUsers[1];
+      
+      return res.json({
+        id: decoded.id,
+        nome: testUser.nome,
+        email: decoded.email || testUser.email,
+        tipo: decoded.tipo_colaborador || testUser.tipo,
+        telefone: '00000000000',
+        cpf: '00000000000',
+        data_admissao: new Date().toISOString().split('T')[0],
+        ativo: 1,
+        id_permissao: 1,
+        testMode: true
+      });
+    }
+
     // Get user data from database
     const [userData] = await db.execute(
       'SELECT id_colaborador, cpf, nome_completo, email, telefone, tipo_colaborador, data_admissao, ativo, id_permissao FROM colaboradores WHERE id_colaborador = ? AND ativo = 1',
@@ -430,6 +452,8 @@ router.get('/preferences', async (req, res) => {
     res.status(500).json({ error: 'Erro ao obter preferências do usuário' });
   }
 });
+
+// GET /api/auth/test-db - Test database connection
 router.get('/test-db', authController.testDatabase);
 
 module.exports = router;

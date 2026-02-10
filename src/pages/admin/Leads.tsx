@@ -289,33 +289,33 @@ const Leads: React.FC = () => {
                     <Label htmlFor="status" className="text-sm font-medium">
                       Status
                     </Label>
-                    <Select value={newLead.status} onValueChange={(value) => setNewLead({ ...newLead, status: value as Lead['status'] })}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione o status" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Novo">Novo</SelectItem>
-                        <SelectItem value="Contatado">Contatado</SelectItem>
-                        <SelectItem value="Qualificado">Qualificado</SelectItem>
-                        <SelectItem value="Proposta">Proposta</SelectItem>
-                      </SelectContent>
-                    </Select>
+                      <Select value={newLead.status} onValueChange={(value) => setNewLead({ ...newLead, status: value as Lead['status'] })}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione o status" />
+                        </SelectTrigger>
+                        <SelectContent position="popper" sideOffset={5} container={null}>
+                          <SelectItem value="Novo">Novo</SelectItem>
+                          <SelectItem value="Contatado">Contatado</SelectItem>
+                          <SelectItem value="Qualificado">Qualificado</SelectItem>
+                          <SelectItem value="Proposta">Proposta</SelectItem>
+                        </SelectContent>
+                      </Select>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="origem" className="text-sm font-medium">
                       Origem
                     </Label>
-                    <Select value={newLead.origem} onValueChange={(value) => setNewLead({ ...newLead, origem: value })}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione a origem" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Site">Site</SelectItem>
-                        <SelectItem value="Google">Google</SelectItem>
-                        <SelectItem value="WhatsApp">WhatsApp</SelectItem>
-                        <SelectItem value="Indicação">Indicação</SelectItem>
-                      </SelectContent>
-                    </Select>
+                      <Select value={newLead.origem} onValueChange={(value) => setNewLead({ ...newLead, origem: value })}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione a origem" />
+                        </SelectTrigger>
+                        <SelectContent position="popper" sideOffset={5} container={null}>
+                          <SelectItem value="Site">Site</SelectItem>
+                          <SelectItem value="Google">Google</SelectItem>
+                          <SelectItem value="WhatsApp">WhatsApp</SelectItem>
+                          <SelectItem value="Indicação">Indicação</SelectItem>
+                        </SelectContent>
+                      </Select>
                   </div>
                 </div>
                 <DialogFooter className="flex gap-2">
@@ -542,7 +542,7 @@ const Leads: React.FC = () => {
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione o status" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent position="popper" sideOffset={5} container={null}>
                         <SelectItem value="Novo">Novo</SelectItem>
                         <SelectItem value="Contatado">Contatado</SelectItem>
                         <SelectItem value="Qualificado">Qualificado</SelectItem>
@@ -558,7 +558,7 @@ const Leads: React.FC = () => {
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione a origem" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent position="popper" sideOffset={5} container={null}>
                         <SelectItem value="Site">Site</SelectItem>
                         <SelectItem value="Google">Google</SelectItem>
                         <SelectItem value="WhatsApp">WhatsApp</SelectItem>

@@ -207,7 +207,7 @@ const Transacoes: React.FC = () => {
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione o tipo" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent position="popper" sideOffset={5} container={null}>
                       <SelectItem value="Receita">Receita</SelectItem>
                       <SelectItem value="Despesa">Despesa</SelectItem>
                     </SelectContent>
@@ -257,7 +257,7 @@ const Transacoes: React.FC = () => {
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione a categoria" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent position="popper" sideOffset={5}>
                       <SelectItem value="Vendas">Vendas</SelectItem>
                       <SelectItem value="Serviços">Serviços</SelectItem>
                       <SelectItem value="Produtos">Produtos</SelectItem>
@@ -291,7 +291,7 @@ const Transacoes: React.FC = () => {
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione a forma" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent position="popper" sideOffset={5}>
                       <SelectItem value="Boleto">Boleto</SelectItem>
                       <SelectItem value="PIX">PIX</SelectItem>
                       <SelectItem value="Cartão">Cartão</SelectItem>

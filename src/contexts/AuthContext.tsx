@@ -25,20 +25,42 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Check for existing token on app load
+  // Check for existing token and user data on app load
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      // Verify token by making a request to get user profile
-      apiService.getProfile().then((userData: User) => {
-        setUser(userData);
-        setIsAuthenticated(true);
-      }).catch(() => {
-        // Token is invalid, remove it
-        localStorage.removeItem('token');
-      });
-    }
+    const initAuth = async () => {
+      const token = localStorage.getItem('token');
+      const savedUser = localStorage.getItem('user');
+      
+      if (token && savedUser) {
+        try {
+          // Parse saved user data
+          const userData = JSON.parse(savedUser);
+          setUser(userData);
+          setIsAuthenticated(true);
+          
+          // Optionally verify token is still valid
+          try {
+            const profileData = await apiService.getProfile() as User;
+            setUser(profileData);
+            localStorage.setItem('user', JSON.stringify(profileData));
+          } catch (error) {
+            // Token might be expired, but we'll keep the user logged in
+            // They'll be redirected to login if they try to access protected resources
+            console.log('Token verification failed, but keeping user logged in');
+          }
+        } catch (error) {
+          // Invalid saved data, clear everything
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+        }
+      }
+      
+      setIsLoading(false);
+    };
+
+    initAuth();
   }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
@@ -46,8 +68,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const response = await apiService.login({ email, senha: password }) as LoginResponse;
       const { token, user: userData } = response;
 
-      // Store token in localStorage
+      // Store token and user data in localStorage
       localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(userData));
 
       setIsAuthenticated(true);
       setUser(userData);
@@ -60,9 +83,19 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const logout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('user');
     setIsAuthenticated(false);
     setUser(null);
   };
+
+  // Show loading spinner while checking authentication
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <AuthContext.Provider value={{ isAuthenticated, user, login, logout }}>
