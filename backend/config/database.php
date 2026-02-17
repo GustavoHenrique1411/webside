@@ -17,7 +17,7 @@ define('JWT_SECRET', getenv('JWT_SECRET') ?: 'your-secret-key-change-in-producti
 define('JWT_EXPIRY', 86400); // 24 hours in seconds
 
 // Configurações de CORS
-define('CORS_ORIGINS', getenv('CORS_ORIGINS') ?: 'http://localhost:5173,http://localhost:3000,http://localhost:8080');
+define('CORS_ORIGINS', getenv('CORS_ORIGINS') ?: 'http://localhost:5173,http://localhost:3000,http://localhost:8080,http://127.0.0.1:8080');
 
 // Modo de desenvolvimento
 define('DEBUG_MODE', getenv('NODE_ENV') !== 'production');
