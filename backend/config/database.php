@@ -5,10 +5,10 @@
  */
 
 // Configurações do banco de dados
-define('DB_HOST', getenv('DB_HOST') ?: 'localhost');
-define('DB_NAME', getenv('DB_NAME') ?: 'webside_db');
-define('DB_USER', getenv('DB_USER') ?: 'root');
-define('DB_PASS', getenv('DB_PASSWORD') ?: '');
+define('DB_HOST', getenv('DB_HOST') ?: '162.241.2.103');
+define('DB_NAME', getenv('DB_NAME') ?: 'websid23_erp');
+define('DB_USER', getenv('DB_USER') ?: 'websid23_dev');
+define('DB_PASS', getenv('DB_PASSWORD') ?: 'Web@132435*');
 define('DB_CHARSET', 'utf8mb4');
 
 // Configurações da API
@@ -17,7 +17,7 @@ define('JWT_SECRET', getenv('JWT_SECRET') ?: 'your-secret-key-change-in-producti
 define('JWT_EXPIRY', 86400); // 24 hours in seconds
 
 // Configurações de CORS
-define('CORS_ORIGINS', getenv('CORS_ORIGINS') ?: 'http://localhost:5173,http://localhost:3000,http://localhost:8080,http://127.0.0.1:8080');
+define('CORS_ORIGINS', getenv('CORS_ORIGINS') ?: 'http://localhost:5173,http://localhost:3000,http://localhost:8080,http://127.0.0.1:8080,https://www.websidesistemas.com.br');
 
 // Modo de desenvolvimento
 define('DEBUG_MODE', getenv('NODE_ENV') !== 'production');

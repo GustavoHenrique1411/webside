@@ -1,8 +1,8 @@
 # Webside - Sistema de Gestão Empresarial
 
-## Projeto Completo ✅
+## ✅ Projeto Pronto para Deploy
 
-Sistema de gestão empresarial completo com frontend React/TypeScript e backend PHP, incluindo módulos para leads, clientes, produtos, pedidos, orçamentos, contratos, faturas e muito mais.
+Sistema de gestão empresarial completo com frontend React/TypeScript e backend PHP, pronto para hospedagem no Hostgator.
 
 ### ✅ Funcionalidades Implementadas
 
@@ -35,8 +35,9 @@ Sistema de gestão empresarial completo com frontend React/TypeScript e backend 
 - [x] Conexão PDO com MySQL
 - [x] Rotas para todos os módulos
 - [x] Health check endpoint
+- [x] Configuração para Hostgator
 
-### 🛠️ Tarefas Pendentes
+### 🛠️ Tarefas Futuras (Opcional)
 
 #### Frontend
 - [ ] Implementar sistema de notificações em tempo real
@@ -56,47 +57,37 @@ Sistema de gestão empresarial completo com frontend React/TypeScript e backend 
 - [ ] Adicionar validação de entrada mais robusta
 - [ ] Criar testes unitários
 
-#### DevOps
-- [ ] Configurar CI/CD completo
-- [ ] Adicionar monitoramento
-- [ ] Configurar backup automático
-
-#### Documentação
-- [ ] Atualizar README com informações do backend PHP
-- [ ] Criar documentação de APIs
-- [ ] Criar guias de desenvolvimento
-
 ### 📊 Stack Tecnológico
 
 - **Frontend:** React 18, TypeScript, Vite, Tailwind CSS, shadcn/ui
 - **Backend:** PHP 8.x, PDO, JWT
 - **Database:** MySQL 8.0+
-- **DevOps:** Docker, Docker Compose
+- **Hospedagem:** Hostgator
 
-### 🚀 Como Executar
+### 🚀 Como Executar Localmente
 
 ```bash
+# Instalar dependências
+npm install
+
 # Desenvolvimento
 npm run dev
-
-# Build produção
-npm run build
 ```
 
 ### 📁 Estrutura do Projeto
 
 ```
 webside/
-├── backend/php/          # API REST PHP
-│   ├── config/           # Configurações
-│   ├── middleware/       # Middlewares
-│   └── routes/          # Rotas da API
-├── src/                  # Frontend React
-│   ├── components/      # Componentes
+├── backend/                 # API REST PHP
+│   ├── config/            # Configurações (database.php)
+│   ├── middleware/        # Middlewares
+│   └── routes/           # Rotas da API
+├── src/                   # Frontend React
+│   ├── components/       # Componentes
 │   ├── pages/           # Páginas
 │   ├── contexts/        # Contextos
 │   ├── hooks/           # Hooks customizados
-│   └── lib/             # Utilitários
+│   └── lib/             # Utilitários (api.ts)
 └── public/               # Assets estáticos
 ```
 
@@ -104,6 +95,13 @@ webside/
 
 - **Admin:** admin@empresa.com / admin123
 - **Teste:** test@test.com / test123
+
+### 📝 Configuração do Banco de Dados
+
+O banco já está configurado no arquivo `backend/config/database.php`:
+- Host: 162.241.2.103
+- Banco: websid23_erp
+- Usuário: websid23_dev
 
 ### 📝 Módulos do Sistema
 

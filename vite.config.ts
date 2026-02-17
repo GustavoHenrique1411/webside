@@ -8,10 +8,12 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
+    // Proxy desabilitado - API chamará diretamente o backend PHP no Hostgator
     proxy: {
       '/api': {
         target: 'http://localhost:5000',
         changeOrigin: true,
+        ws: true,
       },
     },
   },
