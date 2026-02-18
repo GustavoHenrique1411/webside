@@ -1,0 +1,81 @@
+# Development Docker Compose with Hot Reload
+# This configuration mounts source code for development
+
+version: '3.8'
+
+services:
+  # Frontend - React with Vite (development)
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "80:80"
+      - "5173:5173"  # Vite dev server
+    volumes:
+      - ./src:/app/src:ro
+      - ./public:/app/public:ro
+      - ./index.html:/app/index.html:ro
+      - ./package.json:/app/package.json:ro
+      - ./vite.config.ts:/app/vite.config.ts:ro
+    depends_on:
+      - backend
+    networks:
+      - webside-network
+    environment:
+      - VITE_API_URL=/api
+
+  # Backend - Node.js with nodemon for hot reload
+  backend:
+    image: node:20-alpine
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    working_dir: /app
+    command: sh -c "npm install && npx nodemon server.js"
+    environment:
+      - NODE_ENV=development
+      - DB_HOST=${DB_HOST:-162.241.2.103}
+      - DB_USER=${DB_USER:-websid23_dev}
+      - DB_PASSWORD=${DB_PASSWORD:-Web@132435*}
+      - DB_NAME=${DB_NAME:-websid23_erp}
+      - JWT_SECRET=${JWT_SECRET:-dev-secret}
+      - PORT=3000
+    networks:
+      - webside-network
+    depends_on:
+      - db
+
+  # Database - MySQL for development
+  db:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=rootpassword
+      - MYSQL_DATABASE=webside_dev
+      - MYSQL_USER=webside_dev
+      - MYSQL_PASSWORD=devpassword
+    volumes:
+      - mysql_dev_data:/var/lib/mysql
+      - ./database_schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+    networks:
+      - webside-network
+
+  # Adminer - Database UI
+  adminer:
+    image: adminer:latest
+    ports:
+      - "8080:8080"
+    networks:
+      - webside-network
+
+networks:
+  webside-network:
+    driver: bridge
+
+volumes:
+  mysql_dev_data:
+

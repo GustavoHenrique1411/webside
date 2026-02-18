@@ -2,7 +2,7 @@
 
 ## ✅ Projeto Pronto para Deploy
 
-Sistema de gestão empresarial completo com frontend React/TypeScript e backend PHP, pronto para hospedagem no Hostgator.
+Sistema de gestão empresarial completo com frontend React/TypeScript e backend Node.js/Express, pronto para deploy via Docker.
 
 ### ✅ Funcionalidades Implementadas
 
@@ -27,15 +27,26 @@ Sistema de gestão empresarial completo com frontend React/TypeScript e backend 
 - [x] Loading states
 - [x] Dialogs conectados para processos de negócio
 
-#### Backend (PHP)
+#### Backend (Node.js/Express)
 - [x] API RESTful completa
 - [x] Autenticação JWT
 - [x] Middleware de validação
 - [x] Middleware de tratamento de erros
-- [x] Conexão PDO com MySQL
+- [x] Conexão MySQL com pool
 - [x] Rotas para todos os módulos
 - [x] Health check endpoint
-- [x] Configuração para Hostgator
+- [x] Suporte Docker
+
+#### Docker & Infraestrutura
+- [x] Dockerfile para Frontend (Nginx)
+- [x] Dockerfile para Backend (Node.js)
+- [x] docker-compose.yml com todos os serviços
+- [x] Configuração de desenvolvimento
+- [x] Configuração de produção
+- [x] Nginx com proxy reverso e API
+- [x] Health checks para todos os containers
+- [x] Makefile para gerenciamento
+- [x] .dockerignore otimizado
 
 ### 🛠️ Tarefas Futuras (Opcional)
 

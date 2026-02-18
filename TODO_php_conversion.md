@@ -1,39 +1,39 @@
-# TODO - Conversão Backend para PHP
+# TODO - Backend Node.js/Express
 
-## 1. Estrutura Base PHP
-- [x] Criar pasta php/
-- [x] Criar config/database.php - Conexão PDO
-- [x] Criar config/config.php - Configurações e constantes
-- [x] Criar index.php - Entry point principal
+## ✅ Restaurado (Arquivos JS Recriados)
 
-## 2. Middleware PHP
-- [x] Criar middleware/auth.php - JWT authentication
-- [x] Criar middleware/error_handler.php - Error handling
-- [x] Criar middleware/validation.php - Input validation
+### Routes Restauradas
+- [x] routes/auth.js - Autenticação
+- [x] routes/leads.js - Leads
+- [x] routes/clientes.js - Clientes
+- [x] routes/produtos.js - Produtos
+- [x] routes/pedidos.js - Pedidos
+- [x] routes/orcamentos.js - Orçamentos
+- [x] routes/contratos.js - Contratos
+- [x] routes/faturas.js - Faturas
+- [x] routes/implantacoes.js - Implantações
+- [x] routes/colaboradores.js - Colaboradores
+- [x] routes/empresas.js - Empresas
+- [x] routes/transacoes.js - Transações
+- [x] routes/status.js - Status
+- [x] routes/templates.js - Templates
+- [x] routes/parametros-empresa.js - Parâmetros Empresa
+- [x] routes/health.js - Health check
 
-## 3. Routes PHP
-- [x] Criar routes/auth.php - Autenticação
-- [x] Criar routes/leads.php - Leads
-- [x] Criar routes/clientes.php - Clientes
-- [x] Criar routes/produtos.php - Produtos
-- [x] Criar routes/pedidos.php - Pedidos
-- [x] Criar routes/colaboradores.php - Colaboradores
-- [x] Criar routes/empresas.php - Empresas
-- [x] Criar routes/contratos.php - Contratos
-- [x] Criar routes/faturas.php - Faturas
-- [x] Criar routes/implantacoes.php - Implantações
-- [x] Criar routes/orcamentos.php - Orçamentos
-- [x] Criar routes/status.php - Status
-- [x] Criar routes/templates.php - Templates
-- [x] Criar routes/transacoes.php - Transações
-- [x] Criar routes/parametros-empresa.php - Parâmetros Empresa
-- [x] Criar routes/health.php - Health check
+### Configuração Backend
+- [x] server.js - Servidor principal Express
+- [x] config/database.js - Conexão MySQL
+- [x] middleware/auth.js - Autenticação JWT
+- [x] package.json - Dependências Node.js
+- [x] .env - Variáveis de ambiente
 
-## 4. Frontend
-- [x] Atualizar src/lib/api.ts para usar endpoints PHP
+### Como Executar o Backend Node.js
 
-## 5. Configuração Docker
-- [x] Criar php/Dockerfile
-- [x] Criar docker-compose.php.yml
-- [x] Criar php/.htaccess
+```bash
+cd backend
+npm install
+npm start
+```
+
+O servidor Expressirá rodar na porta 5000.
 

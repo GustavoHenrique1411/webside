@@ -1,4 +1,5 @@
-const API_BASE_URL = 'https://www.websidesistemas.com.br/api';
+// Use environment variable or fallback to relative URL (works with Docker nginx proxy)
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
 class ApiService {
   private baseURL: string;
