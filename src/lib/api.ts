@@ -1,4 +1,5 @@
-const API_BASE_URL = 'http://localhost:5000/api';
+// Use environment variable or fallback to relative URL (works with Docker nginx proxy)
+const API_BASE_URL = (import.meta as any).env?.VITE_API_URL || '/api';
 
 class ApiService {
   private baseURL: string;
@@ -410,3 +411,4 @@ class ApiService {
 
 export const apiService = new ApiService();
 export default apiService;
+

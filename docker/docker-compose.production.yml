@@ -1,0 +1,46 @@
+# Production Docker Compose Override
+# This file provides production-specific configuration
+
+version: '3.8'
+
+services:
+  # Frontend - Nginx serving React build
+  frontend:
+    restart: always
+    # Remove Adminer in production by not including it
+    
+  # Backend - Node.js Express API
+  backend:
+    restart: always
+    environment:
+      - NODE_ENV=production
+      # Use secure values from environment
+      - DB_HOST=${DB_HOST}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - JWT_SECRET=${JWT_SECRET}
+      - PORT=3000
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+  # Database - only if using local DB
+  db:
+    restart: always
+    # Production-grade MySQL settings
+    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+

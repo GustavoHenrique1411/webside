@@ -6,8 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
-import { User, Mail, Briefcase, Building2, Save, Edit } from 'lucide-react';
-import { apiService } from '@/lib/api';
+import { User, Mail, Briefcase, Building2, Save, Edit, Loader2 } from 'lucide-react';
+import { useProfile, useUpdateProfile } from '@/hooks/useGraphQL';
 import { useToast } from '@/hooks/use-toast';
 
 interface UserProfile {
@@ -21,8 +21,6 @@ interface UserProfile {
 
 const Perfil: React.FC = () => {
   const { toast } = useToast();
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
   const [formData, setFormData] = useState({
     nome: '',
@@ -31,36 +29,33 @@ const Perfil: React.FC = () => {
     departamento: ''
   });
 
-  useEffect(() => {
-    loadProfile();
-  }, []);
+  // GraphQL hooks
+  const { data: profile, loading, refetch } = useProfile();
+  const updateProfile = useUpdateProfile();
 
-  const loadProfile = async () => {
-    try {
-      const userData = await apiService.getProfile() as UserProfile;
-      setProfile(userData);
+  useEffect(() => {
+    if (profile) {
       setFormData({
-        nome: userData.nome || '',
-        email: userData.email || '',
-        cargo: userData.cargo || '',
-        departamento: userData.departamento || ''
+        nome: profile.nome_completo || '',
+        email: profile.email || '',
+        cargo: profile.tipo_colaborador || '',
+        departamento: ''
       });
-    } catch (error) {
-      console.error('Erro ao carregar perfil:', error);
-      toast({
-        title: 'Erro',
-        description: 'Não foi possível carregar o perfil.',
-        variant: 'destructive',
-      });
-    } finally {
-      setLoading(false);
     }
-  };
+  }, [profile]);
 
   const handleSave = async () => {
     try {
-      await apiService.updateProfile(formData);
-      setProfile({ ...profile!, ...formData });
+      await updateProfile.mutate({
+        variables: {
+          input: {
+            nome_completo: formData.nome,
+            email: formData.email,
+            telefone: ''
+          }
+        }
+      });
+      refetch();
       setEditing(false);
       toast({
         title: 'Sucesso',
@@ -78,10 +73,10 @@ const Perfil: React.FC = () => {
 
   const handleCancel = () => {
     setFormData({
-      nome: profile?.nome || '',
+      nome: profile?.nome_completo || '',
       email: profile?.email || '',
-      cargo: profile?.cargo || '',
-      departamento: profile?.departamento || ''
+      cargo: profile?.tipo_colaborador || '',
+      departamento: ''
     });
     setEditing(false);
   };
@@ -91,7 +86,7 @@ const Perfil: React.FC = () => {
       <AdminLayout title="Perfil do Usuário">
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+            <Loader2 className="h-8 w-8 animate-spin mx-auto" />
             <p className="mt-2 text-muted-foreground">Carregando perfil...</p>
           </div>
         </div>

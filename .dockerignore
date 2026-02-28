@@ -1,0 +1,35 @@
+# Docker
+.docker
+.dockerignore
+# docker-compose* files - but not in docker/ subfolder
+# Git
+.git
+.gitignore
+# Node modules - but we need backend/
+# We exclude node_modules at root but include backend/
+node_modules
+# Documentation
+*.md
+# Environment files
+.env
+.env.*
+!.env.example
+# IDE
+.vscode
+.idea
+# Build outputs
+dist
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+bun.lockb
+
+# Include specific directories needed for Docker build
+!backend/
+!docker/
+!frontend/
+!database/
+!docs/
+

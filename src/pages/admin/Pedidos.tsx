@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import AdminLayout from '@/components/AdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,7 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger } from '@/components/ui/dropdown-menu';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Plus, Search, Package, Truck, MoreHorizontal, FileText, User, Building2, Phone, Mail, Calendar, Eye, Edit, Trash2, Loader2 } from 'lucide-react';
-import { apiService } from '@/lib/api';
+import { usePedidos, useCreatePedido, useUpdatePedido, useDeletePedido } from '@/hooks/useGraphQL';
 
 
 
@@ -23,25 +23,20 @@ const statusColors: Record<string, string> = {
 };
 
 interface Pedido {
-  id_pedido: number;
+  id: number;
   numero_pedido: string;
-  id_orcamento?: number;
-  id_cliente?: number;
-  id_colaborador?: number;
-  id_empresa?: number;
   data_pedido: string;
   valor_total: number;
-  data_prevista_entrega?: string;
-  observacoes?: string;
-  id_status: number;
+  data_prevista_entrega: string | null;
+  observacoes: string | null;
   data_criacao: string;
-  cliente?: string;
-  status?: string;
+  status_nome: string;
+  status_cor: string;
+  cliente_nome: string;
 }
 
 const Pedidos: React.FC = () => {
   const [search, setSearch] = useState('');
-  const [pedidos, setPedidos] = useState<Pedido[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [newPedido, setNewPedido] = useState({
     origem: 'orcamento', // 'orcamento' or 'cliente'
@@ -62,61 +57,55 @@ const Pedidos: React.FC = () => {
     // Notes
     observacoes: ''
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [viewingPedido, setViewingPedido] = useState<Pedido | null>(null);
   const [deletePedidoId, setDeletePedidoId] = useState<number | null>(null);
 
-  // Fetch pedidos on component mount
-  useEffect(() => {
-    fetchPedidos();
-  }, []);
+  // GraphQL hooks
+  const { data: pedidos, loading, error, refetch } = usePedidos();
+  const createPedido = useCreatePedido();
+  const updatePedido = useUpdatePedido();
+  const deletePedido = useDeletePedido();
 
-  const fetchPedidos = async () => {
-    try {
-      setIsLoading(true);
-      const data = await apiService.getPedidos() as Pedido[];
-      setPedidos(data);
-    } catch (error) {
-      console.error('Error fetching pedidos:', error);
-      alert('Erro ao carregar pedidos. Tente novamente.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const filteredPedidos = pedidos.filter(ped =>
-    (ped.numero_pedido && ped.numero_pedido.toLowerCase().includes(search.toLowerCase())) ||
-    (ped.cliente && ped.cliente.toLowerCase().includes(search.toLowerCase()))
+  const filteredPedidos = (pedidos || []).filter((ped: Pedido) =>
+    ped && typeof ped === 'object' && (
+      (typeof ped.numero_pedido === 'string' ? ped.numero_pedido.toLowerCase().includes(search.toLowerCase()) : false) ||
+      (typeof ped.cliente_nome === 'string' ? ped.cliente_nome.toLowerCase().includes(search.toLowerCase()) : false)
+    )
   );
 
   const formatCurrency = (value: number) =>
     new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
 
+  // Calculate dynamic stats
+  const stats = {
+    total: (pedidos || []).length,
+    emProducao: (pedidos || []).filter((p: Pedido) => p.status_nome === 'Em Produção').length,
+    emTransito: (pedidos || []).filter((p: Pedido) => p.status_nome === 'Em Trânsito').length,
+    entregues: (pedidos || []).filter((p: Pedido) => p.status_nome === 'Entregue').length,
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
     try {
       const totalValue = newPedido.itens.reduce((sum, item) => sum + (item.quantidade * item.valorUnitario), 0);
-      const pedidoData = {
-        numero_pedido: `PED-${String(pedidos.length + 1).padStart(3, '0')}`,
-        id_cliente: newPedido.clienteId ? parseInt(newPedido.clienteId) : null,
-        id_orcamento: newPedido.orcamentoId ? parseInt(newPedido.orcamentoId) : null,
-        valor_total: totalValue,
-        data_prevista_entrega: newPedido.dataEntrega || null,
-        observacoes: newPedido.observacoes || null,
-        id_status: 1, // Default to "Aguardando"
-        data_pedido: new Date().toISOString().split('T')[0],
-        data_criacao: new Date().toISOString()
-      };
 
-      await apiService.createPedido(pedidoData);
-      await fetchPedidos(); // Refresh the list
+      await createPedido.mutate({
+        variables: {
+          input: {
+            id_cliente: newPedido.clienteId ? parseInt(newPedido.clienteId) : 1,
+            data_pedido: new Date().toISOString().split('T')[0],
+            valor_total: totalValue,
+            data_prevista_entrega: newPedido.dataEntrega || null,
+            observacoes: newPedido.observacoes || null,
+            id_status: 1
+          }
+        }
+      });
 
+      refetch();
       setNewPedido({
         origem: 'orcamento',
         orcamentoId: '',
@@ -136,14 +125,11 @@ const Pedidos: React.FC = () => {
     } catch (error) {
       console.error('Error creating pedido:', error);
       alert('Erro ao criar pedido. Tente novamente.');
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
   const handleStatusChange = async (pedido: Pedido, newStatus: string) => {
     try {
-      // Map status names to IDs (this should be fetched from the status API)
       const statusMap: Record<string, number> = {
         'Aguardando': 1,
         'Em Produção': 2,
@@ -151,29 +137,30 @@ const Pedidos: React.FC = () => {
         'Entregue': 4
       };
 
-      await apiService.updatePedido(pedido.id_pedido, {
-        ...pedido,
-        id_status: statusMap[newStatus] || pedido.id_status
+      await updatePedido.mutate({
+        variables: {
+          id: pedido.id,
+          input: {
+            id_status: statusMap[newStatus] || 1
+          }
+        }
       });
-      await fetchPedidos(); // Refresh the list
+      refetch();
     } catch (error) {
       console.error('Error updating pedido status:', error);
       alert('Erro ao atualizar status. Tente novamente.');
     }
   };
 
-  const handleDeletePedido = async (pedidoId: number) => {
+  const handleDelete = async (id: number) => {
     if (!confirm('Tem certeza que deseja excluir este pedido?')) return;
 
-    setIsDeleting(true);
     try {
-      await apiService.deletePedido(pedidoId);
-      await fetchPedidos(); // Refresh the list
+      await deletePedido.mutate({ variables: { id } });
+      refetch();
     } catch (error) {
       console.error('Error deleting pedido:', error);
       alert('Erro ao excluir pedido. Tente novamente.');
-    } finally {
-      setIsDeleting(false);
     }
   };
 
@@ -185,9 +172,9 @@ const Pedidos: React.FC = () => {
   const handleEditPedido = (pedido: Pedido) => {
     setViewingPedido(pedido);
     setNewPedido({
-      origem: pedido.id_orcamento ? 'orcamento' : 'cliente',
-      orcamentoId: pedido.id_orcamento?.toString() || '',
-      clienteId: pedido.id_cliente?.toString() || '',
+      origem: 'cliente',
+      orcamentoId: '',
+      clienteId: '',
       empresa: '',
       cnpj: '',
       contato: '',
@@ -206,35 +193,56 @@ const Pedidos: React.FC = () => {
     e.preventDefault();
     if (!viewingPedido) return;
 
-    setIsSubmitting(true);
     try {
       const totalValue = newPedido.itens.reduce((sum, item) => sum + (item.quantidade * item.valorUnitario), 0);
-      const pedidoData = {
-        ...viewingPedido,
-        id_cliente: newPedido.clienteId ? parseInt(newPedido.clienteId) : null,
-        id_orcamento: newPedido.orcamentoId ? parseInt(newPedido.orcamentoId) : null,
-        valor_total: totalValue,
-        data_prevista_entrega: newPedido.dataEntrega || null,
-        observacoes: newPedido.observacoes || null
-      };
 
-      await apiService.updatePedido(viewingPedido.id_pedido, pedidoData);
-      await fetchPedidos(); // Refresh the list
+      await updatePedido.mutate({
+        variables: {
+          id: viewingPedido.id,
+          input: {
+            valor_total: totalValue,
+            data_prevista_entrega: newPedido.dataEntrega || null,
+            observacoes: newPedido.observacoes || null
+          }
+        }
+      });
+      refetch();
       setIsEditDialogOpen(false);
       setViewingPedido(null);
     } catch (error) {
       console.error('Error updating pedido:', error);
       alert('Erro ao atualizar pedido. Tente novamente.');
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
   const handleDeleteConfirm = () => {
     if (deletePedidoId !== null) {
-      handleDeletePedido(deletePedidoId);
+      handleDelete(deletePedidoId);
     }
   };
+
+  if (loading) {
+    return (
+      <AdminLayout title="Pedidos">
+        <div className="flex items-center justify-center h-64">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      </AdminLayout>
+    );
+  }
+
+  if (error) {
+    return (
+      <AdminLayout title="Pedidos">
+        <div className="text-center py-8">
+          <p className="text-red-500">Erro ao carregar pedidos: {error.message}</p>
+          <Button onClick={() => refetch()} className="mt-4">
+            Tentar novamente
+          </Button>
+        </div>
+      </AdminLayout>
+    );
+  }
 
   return (
     <AdminLayout title="Pedidos">
@@ -494,18 +502,9 @@ const Pedidos: React.FC = () => {
                   <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                     Cancelar
                   </Button>
-                  <Button type="submit" disabled={isSubmitting} className="bg-accent hover:bg-accent/90">
-                    {isSubmitting ? (
-                      <>
-                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        Criando...
-                      </>
-                    ) : (
-                      <>
-                        <Plus className="h-4 w-4 mr-2" />
-                        Criar Pedido
-                      </>
-                    )}
+                  <Button type="submit" className="bg-accent hover:bg-accent/90">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Criar Pedido
                   </Button>
                 </DialogFooter>
               </form>
@@ -530,7 +529,7 @@ const Pedidos: React.FC = () => {
                     </div>
                     <div>
                       <Label className="text-sm font-medium">Cliente</Label>
-                      <p>{viewingPedido.cliente || 'Cliente não informado'}</p>
+                      <p>{viewingPedido.cliente_nome || 'Cliente não informado'}</p>
                     </div>
                     <div>
                       <Label className="text-sm font-medium">Valor Total</Label>
@@ -538,8 +537,8 @@ const Pedidos: React.FC = () => {
                     </div>
                     <div>
                       <Label className="text-sm font-medium">Status</Label>
-                      <Badge className={statusColors[viewingPedido.status || 'Aguardando']}>
-                        {viewingPedido.status || 'Aguardando'}
+                      <Badge className={statusColors[viewingPedido.status_nome] || statusColors['Aguardando']}>
+                        {viewingPedido.status_nome || 'Aguardando'}
                       </Badge>
                     </div>
                     <div>
@@ -619,18 +618,9 @@ const Pedidos: React.FC = () => {
                   <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)}>
                     Cancelar
                   </Button>
-                  <Button type="submit" disabled={isSubmitting} className="bg-accent hover:bg-accent/90">
-                    {isSubmitting ? (
-                      <>
-                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        Salvando...
-                      </>
-                    ) : (
-                      <>
-                        <Edit className="h-4 w-4 mr-2" />
-                        Salvar Alterações
-                      </>
-                    )}
+                  <Button type="submit" className="bg-accent hover:bg-accent/90">
+                    <Edit className="h-4 w-4 mr-2" />
+                    Salvar Alterações
                   </Button>
                 </DialogFooter>
               </form>
@@ -642,25 +632,25 @@ const Pedidos: React.FC = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <Card>
             <CardContent className="pt-4">
-              <div className="text-2xl font-bold text-accent">32</div>
+              <div className="text-2xl font-bold text-accent">{stats.total}</div>
               <p className="text-sm text-muted-foreground">Total</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="pt-4">
-              <div className="text-2xl font-bold text-blue-600">12</div>
+              <div className="text-2xl font-bold text-blue-600">{stats.emProducao}</div>
               <p className="text-sm text-muted-foreground">Em Produção</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="pt-4">
-              <div className="text-2xl font-bold text-purple-600">5</div>
+              <div className="text-2xl font-bold text-purple-600">{stats.emTransito}</div>
               <p className="text-sm text-muted-foreground">Em Trânsito</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="pt-4">
-              <div className="text-2xl font-bold text-green-600">15</div>
+              <div className="text-2xl font-bold text-green-600">{stats.entregues}</div>
               <p className="text-sm text-muted-foreground">Entregues</p>
             </CardContent>
           </Card>
@@ -696,14 +686,7 @@ const Pedidos: React.FC = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {isLoading ? (
-                  <TableRow>
-                    <TableCell colSpan={7} className="text-center py-8">
-                      <Loader2 className="h-6 w-6 animate-spin mx-auto mb-2" />
-                      Carregando pedidos...
-                    </TableCell>
-                  </TableRow>
-                ) : filteredPedidos.length === 0 ? (
+                {filteredPedidos.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
                       Nenhum pedido encontrado.
@@ -711,14 +694,14 @@ const Pedidos: React.FC = () => {
                   </TableRow>
                 ) : (
                   filteredPedidos.map((ped) => (
-                    <TableRow key={ped.id_pedido}>
+                    <TableRow key={ped.id}>
                       <TableCell className="font-mono text-sm">{ped.numero_pedido}</TableCell>
-                      <TableCell className="font-medium">{ped.cliente || 'Cliente não informado'}</TableCell>
+                      <TableCell className="font-medium">{ped.cliente_nome || 'Cliente não informado'}</TableCell>
                       <TableCell>{formatCurrency(ped.valor_total)}</TableCell>
                       <TableCell>{new Date(ped.data_pedido).toLocaleDateString('pt-BR')}</TableCell>
                       <TableCell>{ped.data_prevista_entrega ? new Date(ped.data_prevista_entrega).toLocaleDateString('pt-BR') : 'Não definida'}</TableCell>
                       <TableCell>
-                        <Badge className={statusColors[ped.status || 'Aguardando']}>{ped.status || 'Aguardando'}</Badge>
+                        <Badge className={statusColors[ped.status_nome] || statusColors['Aguardando']}>{ped.status_nome || 'Aguardando'}</Badge>
                       </TableCell>
                       <TableCell>
                         <DropdownMenu>
@@ -746,7 +729,7 @@ const Pedidos: React.FC = () => {
                                   <DropdownMenuItem
                                     key={status}
                                     onClick={() => handleStatusChange(ped, status)}
-                                    disabled={ped.status === status}
+                                    disabled={ped.status_nome === status}
                                   >
                                     <Badge className={`${statusColors[status]} mr-2`}>{status}</Badge>
                                   </DropdownMenuItem>
@@ -754,8 +737,7 @@ const Pedidos: React.FC = () => {
                               </DropdownMenuSubContent>
                             </DropdownMenuSub>
                             <DropdownMenuItem
-                              onClick={() => handleDeletePedido(ped.id_pedido)}
-                              disabled={isDeleting}
+                              onClick={() => handleDelete(ped.id)}
                               className="text-red-600"
                             >
                               <Trash2 className="h-4 w-4 mr-2" />

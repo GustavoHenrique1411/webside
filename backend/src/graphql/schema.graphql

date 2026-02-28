@@ -1,0 +1,712 @@
+# GraphQL Schema for Webside ERP
+
+scalar DateTime
+scalar Date
+scalar JSON
+
+# Enums
+enum TipoProduto {
+  produto
+  servico
+  licenca
+}
+
+enum PorteEmpresa {
+  ME
+  EPP
+  MED
+  GRANDE
+}
+
+enum TipoEntidade {
+  cliente
+  pedido
+  contrato
+  implantacao
+  fatura
+  lead
+  aditivo
+  orcamento
+}
+
+enum TipoColaborador {
+  funcionario
+  terceiro
+}
+
+enum TipoTemplate {
+  email
+  contrato
+  aditivo
+  comunicado
+}
+
+enum PeriodicidadeReajuste {
+  anual
+  semestral
+  trimestral
+}
+
+# Types
+type Empresa {
+  id: ID!
+  cnpj: String!
+  razao_social: String!
+  nome_fantasia: String!
+  telefone: String
+  email: String
+  ativo: Boolean!
+  data_criacao: DateTime!
+  data_atualizacao: DateTime!
+}
+
+type ParametrosEmpresa {
+  id_parametro: ID!
+  salario_minimo: Float!
+  percentual_reajuste: Float!
+  dias_vencimento_fatura: Int!
+  taxa_juros_mora: Float!
+  data_vigencia: Date!
+}
+
+type Permissao {
+  id_permissao: ID!
+  nome_perfil: String!
+  descricao: String
+  nivel_acesso: Int!
+  permissoes_json: JSON
+  data_criacao: DateTime!
+}
+
+type Colaborador {
+  id: ID!
+  cpf: String!
+  nome_completo: String!
+  email: String!
+  telefone: String
+  tipo_colaborador: TipoColaborador!
+  data_admissao: Date!
+  comissao_venda: Float!
+  comissao_recorrente: Float!
+  ativo: Boolean!
+  data_cadastro: DateTime!
+  data_ultimo_login: DateTime
+}
+
+type Status {
+  id_status: ID!
+  tipo_entidade: TipoEntidade!
+  codigo_status: String!
+  nome_status: String!
+  descricao: String
+  ordem: Int!
+  cor_hex: String!
+  ativo: Boolean!
+}
+
+type Lead {
+  id: ID!
+  nome_empresa: String!
+  cnpj: String
+  contato_principal: String!
+  email_contato: String!
+  telefone_contato: String!
+  telefone_whatsapp: String
+  contato_cargo: String
+  fonte_lead: String!
+  probabilidade: Int
+  valor_estimado: Float
+  observacoes: String
+  data_criacao: DateTime!
+  data_conversao: Date
+  status_nome: String
+  status_cor: String
+  empresa_nome: String
+  responsavel: String
+}
+
+type Cliente {
+  id: ID!
+  razao_social: String!
+  nome_fantasia: String!
+  cnpj: String!
+  inscricao_estadual: String
+  data_fundacao: Date
+  porte_empresa: PorteEmpresa!
+  email_financeiro: String
+  telefone_financeiro: String
+  telefone_whatsapp: String
+  ativo: Boolean!
+  data_cadastro: DateTime!
+  status_nome: String
+  status_cor: String
+  empresa_nome: String
+  responsavel: String
+}
+
+type Produto {
+  id: ID!
+  codigo_produto: String!
+  nome: String!
+  descricao: String
+  tipo_produto: TipoProduto!
+  categoria: String!
+  valor_base: Float!
+  unidade_medida: String!
+  estoque_minimo: Int
+  ativo: Boolean!
+  data_criacao: DateTime!
+}
+
+type OrcamentoItem {
+  id: ID!
+  id_produto: Int
+  produto_nome: String
+  codigo_produto: String
+  descricao_item: String
+  quantidade: Float!
+  valor_unitario: Float!
+  desconto_percentual: Float
+  desconto_valor: Float
+  valor_total: Float!
+  ordem: Int!
+}
+
+type Orcamento {
+  id: ID!
+  numero_orcamento: String!
+  valor_total: Float!
+  validade_dias: Int!
+  observacoes: String
+  data_criacao: DateTime!
+  data_aprovacao: Date
+  data_validade: Date!
+  status_nome: String
+  status_cor: String
+  cliente_nome: String
+  # Dados completos do cliente
+  cliente: Cliente
+  lead_nome: String
+  # Dados completos do lead
+  lead: Lead
+  vendedor: String
+  empresa_nome: String
+  # Itens do orçamento
+  itens: [OrcamentoItem]
+}
+
+type Pedido {
+  id: ID!
+  numero_pedido: String!
+  data_pedido: Date!
+  valor_total: Float!
+  data_prevista_entrega: Date
+  observacoes: String
+  data_criacao: DateTime!
+  status_nome: String
+  status_cor: String
+  cliente_nome: String
+}
+
+type Contrato {
+  id: ID!
+  numero_contrato: String!
+  data_assinatura: Date!
+  data_inicio_vigencia: Date!
+  data_fim_vigencia: Date!
+  valor_total: Float!
+  renovacao_automatica: Boolean!
+  periodicidade_reajuste: PeriodicidadeReajuste!
+  arquivo_url: String
+  observacoes: String
+  data_criacao: DateTime!
+  status_nome: String
+  status_cor: String
+  cliente_nome: String
+}
+
+type Fatura {
+  id: ID!
+  numero_fatura: String!
+  data_emissao: Date!
+  data_vencimento: Date!
+  valor_original: Float!
+  valor_final: Float!
+  data_pagamento: Date
+  valor_pago: Float
+  observacoes: String
+  status_nome: String
+  status_cor: String
+}
+
+type Implantacao {
+  id: ID!
+  data_inicio_prevista: Date!
+  data_fim_prevista: Date!
+  data_inicio_real: Date
+  data_fim_real: Date
+  percentual_conclusao: Int!
+  observacoes: String
+  data_criacao: DateTime!
+  status_nome: String
+  status_cor: String
+  contrato_numero: String
+  responsavel_nome: String
+}
+
+type Template {
+  id_template: ID!
+  tipo_template: TipoTemplate!
+  nome_template: String!
+  assunto: String
+  conteudo: String!
+  email_html: String
+  variaveis: JSON
+  ativo: Boolean!
+  data_criacao: DateTime!
+}
+
+type EmailTemplate {
+  id_template_email: ID!
+  nome_template: String!
+  tipo_documento: String!
+  assunto: String!
+  corpo_html: String!
+  corpo_texto: String!
+  variaveis: JSON
+  ativo: Boolean!
+  data_criacao: DateTime!
+}
+
+type Transacao {
+  id: ID!
+  tipo_entidade: String!
+  valor: Float!
+  data_transacao: DateTime!
+}
+
+type Health {
+  status: String!
+  timestamp: DateTime!
+  uptime: Float!
+}
+
+type OrcamentoTxt {
+  orcamento_id: ID!
+  texto: String!
+  html: String!
+}
+
+type EnvioEmailResult {
+  success: Boolean!
+  message: String!
+  email_enviado: String
+}
+
+type EnvioWhatsappResult {
+  success: Boolean!
+  message: String!
+  numero_whatsapp: String
+}
+
+# Input Types
+input CreateEmpresaInput {
+  cnpj: String!
+  razao_social: String!
+  nome_fantasia: String!
+  telefone: String
+  email: String
+  ativo: Boolean
+}
+
+input UpdateEmpresaInput {
+  cnpj: String
+  razao_social: String
+  nome_fantasia: String
+  telefone: String
+  email: String
+  ativo: Boolean
+}
+
+input CreateLeadInput {
+  nome_empresa: String!
+  cnpj: String
+  contato_principal: String!
+  email_contato: String!
+  telefone_contato: String!
+  telefone_whatsapp: String
+  contato_cargo: String
+  fonte_lead: String
+  probabilidade: Int
+  valor_estimado: Float
+  observacoes: String
+  id_empresa: Int
+  id_colaborador: Int
+}
+
+input UpdateLeadInput {
+  nome_empresa: String
+  cnpj: String
+  contato_principal: String
+  email_contato: String
+  telefone_contato: String
+  telefone_whatsapp: String
+  contato_cargo: String
+  fonte_lead: String
+  probabilidade: Int
+  valor_estimado: Float
+  observacoes: String
+  id_status: Int
+}
+
+input CreateClienteInput {
+  razao_social: String!
+  nome_fantasia: String
+  cnpj: String!
+  inscricao_estadual: String
+  data_fundacao: Date
+  porte_empresa: PorteEmpresa!
+  telefone_whatsapp: String
+  email_financeiro: String
+  telefone_financeiro: String
+  id_empresa: Int
+  id_colaborador: Int
+  id_lead: Int
+  observacoes: String
+}
+
+input UpdateClienteInput {
+  razao_social: String
+  nome_fantasia: String
+  cnpj: String
+  inscricao_estadual: String
+  data_fundacao: Date
+  porte_empresa: PorteEmpresa
+  telefone_whatsapp: String
+  email_financeiro: String
+  telefone_financeiro: String
+  id_status: Int
+  id_empresa: Int
+  id_colaborador: Int
+  observacoes: String
+}
+
+input CreateProdutoInput {
+  codigo_produto: String!
+  nome: String!
+  descricao: String
+  tipo_produto: TipoProduto!
+  categoria: String!
+  valor_base: Float!
+  unidade_medida: String!
+  estoque_minimo: Int
+}
+
+input UpdateProdutoInput {
+  codigo_produto: String
+  nome: String
+  descricao: String
+  tipo_produto: TipoProduto
+  categoria: String
+  valor_base: Float
+  unidade_medida: String
+  estoque_minimo: Int
+  ativo: Boolean
+}
+
+input CreateOrcamentoItemInput {
+  id_produto: Int
+  descricao_item: String
+  quantidade: Float!
+  valor_unitario: Float!
+  desconto_percentual: Float
+  desconto_valor: Float
+}
+
+input CreateColaboradorInput {
+  cpf: String!
+  nome_completo: String!
+  email: String!
+  senha: String!
+  telefone: String
+  tipo_colaborador: TipoColaborador!
+  data_admissao: Date!
+  comissao_venda: Float
+  comissao_recorrente: Float
+  id_permissao: Int!
+  id_empresa: Int
+}
+
+input UpdateColaboradorInput {
+  nome_completo: String
+  email: String
+  telefone: String
+  tipo_colaborador: TipoColaborador
+  data_admissao: Date
+  comissao_venda: Float
+  comissao_recorrente: Float
+  ativo: Boolean
+  id_permissao: Int
+}
+
+input LoginInput {
+  email: String!
+  senha: String!
+}
+
+input EnviarEmailInput {
+  orcamento_id: ID!
+  destinatario: String!
+  destinatario_nome: String
+  assunto: String
+  mensagem: String
+  template_id: ID
+}
+
+input EnviarWhatsappInput {
+  orcamento_id: ID!
+  numero_whatsapp: String
+  mensagem: String
+}
+
+# Queries
+type Query {
+  # Health
+  health: Health
+  
+  # Empresas
+  empresas: [Empresa]
+  empresa(id: ID!): Empresa
+  
+  # Parametros Empresa
+  parametros_empresa: ParametrosEmpresa
+  
+  # Colaboradores
+  colaboradores: [Colaborador]
+  colaborador(id: ID!): Colaborador
+  
+  # Permissoes
+  permissoes: [Permissao]
+  
+  # Status
+  status(tipo_entidade: TipoEntidade): [Status]
+  status_by_id(id: ID!): Status
+  
+  # Leads
+  leads: [Lead]
+  lead(id: ID!): Lead
+  
+  # Clientes
+  clientes: [Cliente]
+  cliente(id: ID!): Cliente
+  
+  # Produtos
+  produtos: [Produto]
+  produto(id: ID!): Produto
+  
+  # Orcamentos - retorna dados completos
+  orcamentos: [Orcamento]
+  orcamento(id: ID!): Orcamento
+  
+  # Pedidos
+  pedidos: [Pedido]
+  pedido(id: ID!): Pedido
+  
+  # Contratos
+  contratos: [Contrato]
+  contrato(id: ID!): Contrato
+  
+  # Faturas
+  faturas(contrato_id: ID): [Fatura]
+  fatura(id: ID!): Fatura
+  
+  # Implantacoes
+  implantacoes: [Implantacao]
+  implantacao(id: ID!): Implantacao
+  
+  # Templates
+  templates(tipo_template: TipoTemplate): [Template]
+  template(id: ID!): Template
+  
+  # Email Templates
+  email_templates(tipo_documento: String): [EmailTemplate]
+  email_template(id: ID!): EmailTemplate
+  
+  # Gerar TXT do orçamento
+  gerarOrcamentoTxt(id: ID!): OrcamentoTxt
+  
+  # Transacoes
+  transacoes: [Transacao]
+}
+
+# Mutations
+type Mutation {
+  # Auth
+  login(input: LoginInput!): AuthPayload
+  
+  # Empresas
+  createEmpresa(input: CreateEmpresaInput!): Empresa
+  updateEmpresa(id: ID!, input: UpdateEmpresaInput!): Empresa
+  deleteEmpresa(id: ID!): Boolean
+  
+  # Leads
+  createLead(input: CreateLeadInput!): Lead
+  updateLead(id: ID!, input: UpdateLeadInput!): Lead
+  deleteLead(id: ID!): Boolean
+  
+  # Clientes
+  createCliente(input: CreateClienteInput!): Cliente
+  updateCliente(id: ID!, input: UpdateClienteInput!): Cliente
+  deleteCliente(id: ID!): Boolean
+  
+  # Produtos
+  createProduto(input: CreateProdutoInput!): Produto
+  updateProduto(id: ID!, input: UpdateProdutoInput!): Produto
+  deleteProduto(id: ID!): Boolean
+  
+  # Colaboradores
+  createColaborador(input: CreateColaboradorInput!): Colaborador
+  updateColaborador(id: ID!, input: UpdateColaboradorInput!): Colaborador
+  deleteColaborador(id: ID!): Boolean
+  
+  # Orcamentos
+  createOrcamento(input: CreateOrcamentoInput!): Orcamento
+  updateOrcamento(id: ID!, input: UpdateOrcamentoInput!): Orcamento
+  deleteOrcamento(id: ID!): Boolean
+  
+  # Enviar orçamento
+  enviarOrcamentoEmail(input: EnviarEmailInput!): EnvioEmailResult
+  enviarOrcamentoWhatsapp(input: EnviarWhatsappInput!): EnvioWhatsappResult
+  
+  # Pedidos
+  createPedido(input: CreatePedidoInput!): Pedido
+  updatePedido(id: ID!, input: UpdatePedidoInput!): Pedido
+  deletePedido(id: ID!): Boolean
+  
+  # Contratos
+  createContrato(input: CreateContratoInput!): Contrato
+  updateContrato(id: ID!, input: UpdateContratoInput!): Contrato
+  deleteContrato(id: ID!): Boolean
+  
+  # Faturas
+  createFatura(input: CreateFaturaInput!): Fatura
+  updateFatura(id: ID!, input: UpdateFaturaInput!): Fatura
+  deleteFatura(id: ID!): Boolean
+  
+  # Implantacoes
+  createImplantacao(input: CreateImplantacaoInput!): Implantacao
+  updateImplantacao(id: ID!, input: UpdateImplantacaoInput!): Implantacao
+  deleteImplantacao(id: ID!): Boolean
+}
+
+# Additional Input Types for Mutations
+input CreateOrcamentoInput {
+  id_lead: Int
+  id_cliente: Int
+  valor_total: Float!
+  validade_dias: Int!
+  observacoes: String
+  id_status: Int!
+  id_colaborador: Int
+  id_empresa: Int
+  itens: [CreateOrcamentoItemInput]
+}
+
+input UpdateOrcamentoInput {
+  valor_total: Float
+  validade_dias: Int
+  observacoes: String
+  id_status: Int
+}
+
+input CreatePedidoInput {
+  id_orcamento: Int
+  id_cliente: Int!
+  data_pedido: Date!
+  valor_total: Float!
+  data_prevista_entrega: Date
+  observacoes: String
+  id_status: Int!
+}
+
+input UpdatePedidoInput {
+  data_pedido: Date
+  valor_total: Float
+  data_prevista_entrega: Date
+  observacoes: String
+  id_status: Int
+}
+
+input CreateContratoInput {
+  id_pedido: Int!
+  id_cliente: Int!
+  data_assinatura: Date!
+  data_inicio_vigencia: Date!
+  data_fim_vigencia: Date!
+  valor_total: Float!
+  renovacao_automatica: Boolean
+  periodicidade_reajuste: PeriodicidadeReajuste!
+  arquivo_url: String
+  observacoes: String
+  id_status: Int!
+}
+
+input UpdateContratoInput {
+  data_assinatura: Date
+  data_inicio_vigencia: Date
+  data_fim_vigencia: Date
+  valor_total: Float
+  renovacao_automatica: Boolean
+  periodicidade_reajuste: PeriodicidadeReajuste
+  arquivo_url: String
+  observacoes: String
+  id_status: Int
+}
+
+input CreateFaturaInput {
+  id_contrato: Int!
+  numero_fatura: String!
+  data_emissao: Date!
+  data_vencimento: Date!
+  valor_original: Float!
+  valor_final: Float!
+  observacoes: String
+  id_status: Int!
+}
+
+input UpdateFaturaInput {
+  data_emissao: Date
+  data_vencimento: Date
+  valor_original: Float
+  valor_final: Float
+  data_pagamento: Date
+  valor_pago: Float
+  observacoes: String
+  id_status: Int
+}
+
+input CreateImplantacaoInput {
+  id_contrato: Int!
+  id_colaborador: Int!
+  data_inicio_prevista: Date!
+  data_fim_prevista: Date!
+  observacoes: String
+  id_status: Int!
+}
+
+input UpdateImplantacaoInput {
+  data_inicio_prevista: Date
+  data_fim_prevista: Date
+  data_inicio_real: Date
+  data_fim_real: Date
+  percentual_conclusao: Int
+  observacoes: String
+  id_status: Int
+}
+
+# Auth Payload
+type AuthPayload {
+  token: String!
+  user: Colaborador!
+}
+

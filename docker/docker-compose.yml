@@ -1,0 +1,84 @@
+version: '3.8'
+
+services:
+  # Frontend - Nginx serving React build
+  frontend:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - webside-network
+    restart: unless-stopped
+
+  # Backend - Node.js Express API
+  backend:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.backend
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - DB_HOST=${DB_HOST:-162.241.2.103}
+      - DB_USER=${DB_USER:-websid23_dev}
+      - DB_PASSWORD=${DB_PASSWORD:-Web@132435*}
+      - DB_NAME=${DB_NAME:-websid23_erp}
+      - JWT_SECRET=${JWT_SECRET:-your-super-secret-jwt-key-change-in-production}
+      - PORT=3001
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - webside-network
+    restart: unless-stopped
+
+  # Database - MySQL
+  db:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-rootpassword}
+      - MYSQL_DATABASE=${DB_NAME:-websid23_erp}
+      - MYSQL_USER=${DB_USER:-websid23_dev}
+      - MYSQL_PASSWORD=${DB_PASSWORD:-Web@132435*}
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database_schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./sample_data.sql:/docker-entrypoint-initdb.d/02-sample-data.sql
+    networks:
+      - webside-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpassword"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    # Use existing external database by default (comment out volumes to use external)
+    # volumes:
+    #   - mysql_data:/var/lib/mysql
+
+  # Adminer - Database management UI (optional, for development)
+  adminer:
+    image: adminer:latest
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    networks:
+      - webside-network
+    restart: unless-stopped
+
+networks:
+  webside-network:
+    driver: bridge
+
+volumes:
+  mysql_data:
+    driver: local
+

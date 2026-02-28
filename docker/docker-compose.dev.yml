@@ -1,0 +1,39 @@
+# Docker Compose - Development with External Database
+# This file runs only frontend + backend, connecting to external Hostgator database
+
+services:
+  # Frontend - Nginx serving React build
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - webside-network
+
+  # Backend - Node.js Express API (connects to external Hostgator DB)
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - DB_HOST=162.241.2.103
+      - DB_USER=websid23_dev
+      - DB_PASSWORD=Web@132435*
+      - DB_NAME=websid23_erp
+      - JWT_SECRET=your-super-secret-jwt-key-change-in-production
+      - PORT=3001
+    networks:
+      - webside-network
+    restart: unless-stopped
+
+networks:
+  webside-network:
+    driver: bridge
+

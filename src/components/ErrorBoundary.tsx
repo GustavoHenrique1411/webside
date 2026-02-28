@@ -134,7 +134,7 @@ class ErrorBoundary extends Component<Props, State> {
               )}
 
               {/* Error Stack (Development Only) */}
-              {process.env.NODE_ENV === 'development' && this.state.errorInfo && (
+              {(import.meta as any).env?.DEV && this.state.errorInfo && (
                 <details className="p-4 bg-muted rounded-lg">
                   <summary className="font-semibold text-sm cursor-pointer hover:text-primary">
                     Detalhes Técnicos (Desenvolvimento)

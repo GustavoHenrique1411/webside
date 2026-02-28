@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Plus, Search, CreditCard, MoreHorizontal, DollarSign, Calendar, FileText, Eye, Edit, Trash2, Loader2 } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger } from '@/components/ui/dropdown-menu';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { apiService } from '@/lib/api';
+import { useTransacoes, useCreateTransacao, useUpdateTransacao, useDeleteTransacao } from '@/hooks/useGraphQL';
 
 interface Transacao {
   id_transacao: number;
@@ -44,8 +44,6 @@ const tipoColors: Record<string, string> = {
 
 const Transacoes: React.FC = () => {
   const [search, setSearch] = useState('');
-  const [transacoes, setTransacoes] = useState<Transacao[]>([]);
-  const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [deleteTransacaoId, setDeleteTransacaoId] = useState<number | null>(null);
@@ -67,27 +65,15 @@ const Transacoes: React.FC = () => {
     observacoes: ''
   });
 
-  // Fetch transacoes on component mount
-  useEffect(() => {
-    fetchTransacoes();
-  }, []);
+  // GraphQL hooks
+  const { data: transacoes, loading, refetch } = useTransacoes();
+  const createTransacao = useCreateTransacao();
+  const updateTransacao = useUpdateTransacao();
+  const deleteTransacao = useDeleteTransacao();
 
-  const fetchTransacoes = async () => {
-    try {
-      setLoading(true);
-      const data = await apiService.getTransacoes() as Transacao[];
-      setTransacoes(data);
-    } catch (error) {
-      console.error('Error fetching transacoes:', error);
-      alert('Erro ao carregar transações. Tente novamente.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const filteredTransacoes = transacoes.filter(trx =>
-    (trx.cliente && trx.cliente.toLowerCase().includes(search.toLowerCase())) ||
-    (trx.id_transacao && trx.id_transacao.toString().includes(search.toLowerCase()))
+  const filteredTransacoes = (transacoes || []).filter((trx: any) =>
+    (trx.descricao && trx.descricao.toLowerCase().includes(search.toLowerCase())) ||
+    (trx.id && trx.id.toString().includes(search.toLowerCase()))
   );
 
   const formatCurrency = (value: number) =>
@@ -98,20 +84,20 @@ const Transacoes: React.FC = () => {
     setIsSubmitting(true);
 
     try {
-      const transacaoData = {
-        tipo: newTransacao.tipo,
-        valor: newTransacao.valor,
-        data_transacao: newTransacao.data,
-        descricao: newTransacao.descricao,
-        categoria: newTransacao.categoria,
-        forma_pagamento: newTransacao.formaPagamento,
-        parcelas: newTransacao.parcelas,
-        observacoes: newTransacao.observacoes,
-        id_pedido: newTransacao.pedidoId ? parseInt(newTransacao.pedidoId) : null,
-        id_cliente: newTransacao.clienteId ? parseInt(newTransacao.clienteId) : null,
-      };
-
-      await apiService.createTransacao(transacaoData);
+      await createTransacao.mutate({
+        variables: {
+          input: {
+            tipo: newTransacao.tipo,
+            valor: newTransacao.valor,
+            data_transacao: newTransacao.data,
+            descricao: newTransacao.descricao,
+            categoria: newTransacao.categoria,
+            forma_pagamento: newTransacao.formaPagamento,
+            parcelas: newTransacao.parcelas,
+            observacoes: newTransacao.observacoes
+          }
+        }
+      });
 
       // Reset form
       setNewTransacao({
@@ -128,9 +114,7 @@ const Transacoes: React.FC = () => {
         observacoes: ''
       });
       setIsDialogOpen(false);
-
-      // Refresh the list
-      await fetchTransacoes();
+      refetch();
     } catch (error) {
       console.error('Error creating transaction:', error);
       alert('Erro ao criar transação. Tente novamente.');
@@ -139,15 +123,15 @@ const Transacoes: React.FC = () => {
     }
   };
 
-  const handleStatusChange = async (transacao: Transacao, newStatus: string) => {
+  const handleStatusChange = async (transacao: any, newStatus: string) => {
     try {
-      await apiService.updateTransacao(transacao.id_transacao, { status: newStatus });
-      // Update local state
-      setTransacoes(transacoes.map(trx =>
-        trx.id_transacao === transacao.id_transacao
-          ? { ...trx, status: newStatus }
-          : trx
-      ));
+      await updateTransacao.mutate({
+        variables: {
+          id: transacao.id,
+          input: { status: newStatus }
+        }
+      });
+      refetch();
     } catch (error) {
       console.error('Error updating transaction status:', error);
       alert('Erro ao atualizar status da transação. Tente novamente.');
@@ -162,8 +146,10 @@ const Transacoes: React.FC = () => {
     if (deleteTransacaoId !== null) {
       setIsDeleting(true);
       try {
-        await apiService.deleteTransacao(deleteTransacaoId);
-        setTransacoes(transacoes.filter(trx => trx.id_transacao !== deleteTransacaoId));
+        await deleteTransacao.mutate({
+          variables: { id: deleteTransacaoId }
+        });
+        refetch();
         setDeleteTransacaoId(null);
       } catch (error) {
         console.error('Error deleting transaction:', error);

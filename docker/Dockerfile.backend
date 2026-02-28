@@ -1,0 +1,24 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Copy package files
+COPY backend/package*.json ./backend/
+
+# Install dependencies
+WORKDIR /app/backend
+RUN npm install
+
+# Copy source code
+COPY backend/ .
+
+# Expose port
+EXPOSE 3001
+
+# Health check using the /health endpoint
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+    CMD wget --quiet --tries=1 --spider http://localhost:3001/health || exit 1
+
+# Start the server
+CMD ["npm", "start"]
+

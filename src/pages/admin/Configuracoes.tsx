@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Building2, User, Bell, Shield, Palette, Settings, Save, CheckCircle, Loader2, Users, Plus, Edit, Trash2 } from 'lucide-react';
-import { apiService } from '@/lib/api';
+import { useEmpresas, useCreateEmpresa, useUpdateEmpresa, useColaboradores, useCreateColaborador, useUpdateColaborador, useDeleteColaborador } from '@/hooks/useGraphQL';
 import { useNotifications } from '@/components/NotificationSystem';
 
 const Configuracoes: React.FC = () => {
@@ -44,7 +44,6 @@ const Configuracoes: React.FC = () => {
     taxaJurosMora: 0,
     dataVigencia: ''
   });
-  const [colaboradores, setColaboradores] = useState<any[]>([]);
   const [isColaboradorDialogOpen, setIsColaboradorDialogOpen] = useState(false);
   const [editingColaborador, setEditingColaborador] = useState<any>(null);
   const [colaboradorForm, setColaboradorForm] = useState({
@@ -59,70 +58,68 @@ const Configuracoes: React.FC = () => {
     comissao_recorrente: 0
   });
 
-  // Fetch initial data
+  // GraphQL hooks
+  const { data: empresasData, loading: loadingEmpresas, refetch: refetchEmpresas } = useEmpresas();
+  const { data: colaboradoresData, loading: loadingColaboradores, refetch: refetchColaboradores } = useColaboradores();
+  const createEmpresa = useCreateEmpresa();
+  const updateEmpresa = useUpdateEmpresa();
+  const createColaborador = useCreateColaborador();
+  const updateColaborador = useUpdateColaborador();
+  const deleteColaborador = useDeleteColaborador();
+
+  // Set initial data from GraphQL
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setIsLoading(true);
-        // Fetch empresas (assuming first one is the current company)
-        const empresas = await apiService.getEmpresas() as any[];
-        if (empresas && empresas.length > 0) {
-          const empresa = empresas[0];
-          setEmpresaData({
-            razaoSocial: empresa.razao_social || '',
-            nomeFantasia: empresa.nome_fantasia || '',
-            cnpj: empresa.cnpj || '',
-            ie: empresa.inscricao_estadual || '',
-            endereco: empresa.endereco || '',
-            telefone: empresa.telefone || '',
-            email: empresa.email || ''
-          });
-        }
-
-
-
-        // Fetch system parameters
-        const parametros = await apiService.getParametrosEmpresa() as any[];
-        if (parametros && parametros.length > 0) {
-          const param = parametros[0];
-          setParametrosData({
-            salarioMinimo: param.salario_minimo || 0,
-            percentualReajuste: param.percentual_reajuste || 0,
-            diasVencimentoFatura: param.dias_vencimento_fatura || 0,
-            taxaJurosMora: param.taxa_juros_mora || 0,
-            dataVigencia: param.data_vigencia || new Date().toISOString().split('T')[0]
-          });
-        }
-
-        // Fetch colaboradores
-        const colaboradoresData = await apiService.getColaboradores() as any[];
-        setColaboradores(colaboradoresData || []);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-        alert('Erro ao carregar dados. Tente novamente.');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
+    if (empresasData && empresasData.length > 0) {
+      const empresa = empresasData[0];
+      setEmpresaData({
+        razaoSocial: empresa.razao_social || '',
+        nomeFantasia: empresa.nome_fantasia || '',
+        cnpj: empresa.cnpj || '',
+        ie: '',
+        endereco: '',
+        telefone: empresa.telefone || '',
+        email: empresa.email || ''
+      });
+    }
+  }, [empresasData]);
 
   const handleSaveEmpresa = async () => {
-    setIsLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      if (empresasData && empresasData.length > 0) {
+        await updateEmpresa.mutate({
+          variables: {
+            id: empresasData[0].id,
+            input: {
+              razao_social: empresaData.razaoSocial,
+              nome_fantasia: empresaData.nomeFantasia,
+              cnpj: empresaData.cnpj,
+              telefone: empresaData.telefone,
+              email: empresaData.email
+            }
+          }
+        });
+      } else {
+        await createEmpresa.mutate({
+          variables: {
+            input: {
+              razao_social: empresaData.razaoSocial,
+              nome_fantasia: empresaData.nomeFantasia,
+              cnpj: empresaData.cnpj,
+              telefone: empresaData.telefone,
+              email: empresaData.email,
+              ativo: true
+            }
+          }
+        });
+      }
+      refetchEmpresas();
       notifications.success('Sucesso!', 'Dados da empresa salvos com sucesso!');
     } catch (error) {
       notifications.error('Erro!', 'Erro ao salvar dados da empresa. Tente novamente.');
-    } finally {
-      setIsLoading(false);
     }
   };
 
   const handleSaveUsuario = async () => {
-    setIsLoading(true);
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1500));
@@ -130,8 +127,6 @@ const Configuracoes: React.FC = () => {
       setIsSuccessDialogOpen(true);
     } catch (error) {
       alert('Erro ao salvar perfil. Tente novamente.');
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -235,49 +230,40 @@ const Configuracoes: React.FC = () => {
   };
 
   const handleAddColaborador = async (colaboradorData: any) => {
-    setIsLoading(true);
     try {
-      await apiService.createColaborador(colaboradorData);
+      await createColaborador.mutate({
+        variables: { input: colaboradorData }
+      });
+      refetchColaboradores();
       notifications.success('Sucesso!', 'Colaborador adicionado com sucesso!');
-      // Refresh colaboradores list
-      const colaboradoresData = await apiService.getColaboradores() as any[];
-      setColaboradores(colaboradoresData || []);
     } catch (error) {
       notifications.error('Erro!', 'Erro ao adicionar colaborador. Tente novamente.');
-    } finally {
-      setIsLoading(false);
     }
   };
 
   const handleEditColaborador = async (id: number, colaboradorData: any) => {
-    setIsLoading(true);
     try {
-      await apiService.updateColaborador(id, colaboradorData);
+      await updateColaborador.mutate({
+        variables: { id, input: colaboradorData }
+      });
+      refetchColaboradores();
       notifications.success('Sucesso!', 'Colaborador atualizado com sucesso!');
-      // Refresh colaboradores list
-      const colaboradoresData = await apiService.getColaboradores() as any[];
-      setColaboradores(colaboradoresData || []);
     } catch (error) {
       notifications.error('Erro!', 'Erro ao atualizar colaborador. Tente novamente.');
-    } finally {
-      setIsLoading(false);
     }
   };
 
   const handleDeleteColaborador = async (id: number) => {
     if (!confirm('Tem certeza que deseja excluir este colaborador?')) return;
 
-    setIsLoading(true);
     try {
-      await apiService.deleteColaborador(id);
+      await deleteColaborador.mutate({
+        variables: { id }
+      });
+      refetchColaboradores();
       notifications.success('Sucesso!', 'Colaborador excluído com sucesso!');
-      // Refresh colaboradores list
-      const colaboradoresData = await apiService.getColaboradores() as any[];
-      setColaboradores(colaboradoresData || []);
     } catch (error) {
       notifications.error('Erro!', 'Erro ao excluir colaborador. Tente novamente.');
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -437,7 +423,12 @@ const Configuracoes: React.FC = () => {
                 <CardContent className="space-y-4">
 
                   <div className="border rounded-lg overflow-hidden">
-                    {colaboradores.length === 0 ? (
+                    {loadingColaboradores ? (
+                      <div className="text-center py-12">
+                        <Loader2 className="h-8 w-8 animate-spin mx-auto mb-3" />
+                        <p className="text-muted-foreground">Carregando...</p>
+                      </div>
+                    ) : !colaboradoresData || colaboradoresData.length === 0 ? (
                       <div className="text-center py-12 text-muted-foreground bg-muted/20">
                         <Users className="h-12 w-12 mx-auto mb-3 opacity-50" />
                         <p className="font-medium">Nenhum colaborador cadastrado</p>
@@ -457,8 +448,8 @@ const Configuracoes: React.FC = () => {
                             </tr>
                           </thead>
                           <tbody className="divide-y">
-                            {colaboradores.map((colaborador: any) => (
-                              <tr key={colaborador.id_colaborador} className="hover:bg-muted/20 transition-colors">
+                            {colaboradoresData && colaboradoresData.map((colaborador: any) => (
+                              <tr key={colaborador.id} className="hover:bg-muted/20 transition-colors">
                                 <td className="p-3">
                                   <div>
                                     <p className="font-medium text-sm">{colaborador.nome_completo}</p>
@@ -511,7 +502,7 @@ const Configuracoes: React.FC = () => {
                                     <Button
                                       variant="ghost"
                                       size="sm"
-                                      onClick={() => handleDeleteColaborador(colaborador.id_colaborador)}
+                                      onClick={() => handleDeleteColaborador(colaborador.id)}
                                       className="hover:bg-red-100 hover:text-red-700"
                                     >
                                       <Trash2 className="h-4 w-4" />
@@ -953,7 +944,7 @@ const Configuracoes: React.FC = () => {
                 }
 
                 if (editingColaborador) {
-                  await handleEditColaborador(editingColaborador.id_colaborador, colaboradorForm);
+                  await handleEditColaborador(editingColaborador.id, colaboradorForm);
                 } else {
                   await handleAddColaborador(colaboradorForm);
                 }
