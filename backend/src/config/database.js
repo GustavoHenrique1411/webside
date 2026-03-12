@@ -1,16 +1,15 @@
 const mysql = require('mysql2/promise');
 const { logger } = require('./logger');
 
-// Usar MySQL do Hostgator por padrão
-// collect credentials, allowing both DB_PASSWORD (preferred) and legacy DB_PASS
-const dbPassword = process.env.DB_PASSWORD || process.env.DB_PASS || 'Web@132435*';
+// Usar MySQL local do Docker por padrão
+const dbHost = process.env.DB_HOST || 'localhost';
 const dbPort = process.env.DB_PORT ? parseInt(process.env.DB_PORT, 10) : 3306;
 
 const poolConfig = {
-  host: process.env.DB_HOST || '162.241.2.103',
+  host: dbHost,
   port: dbPort,
   user: process.env.DB_USER || 'websid23_dev',
-  password: dbPassword,
+  password: process.env.DB_PASSWORD || 'Web@132435*',
   database: process.env.DB_NAME || 'websid23_erp',
   waitForConnections: true,
   connectionLimit: 10,

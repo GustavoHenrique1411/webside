@@ -25,7 +25,7 @@ services:
       - "3002:3002"
     environment:
       - NODE_ENV=production
-      - DB_HOST=db
+      - DB_HOST=162.241.2.103
       - DB_USER=${DB_USER:-websid23_dev}
       - DB_PASSWORD=${DB_PASSWORD:-Web@132435*}
       - DB_NAME=${DB_NAME:-websid23_erp}
@@ -50,8 +50,9 @@ services:
       - MYSQL_PASSWORD=${DB_PASSWORD:-Web@132435*}
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./database_schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
-      - ./sample_data.sql:/docker-entrypoint-initdb.d/02-sample-data.sql
+      - ../database/migrations/001_create_schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ../database/seeds/001_base_data.sql:/docker-entrypoint-initdb.d/02-base-data.sql
+      - ../database/seeds/002_sample_data.sql:/docker-entrypoint-initdb.d/03-sample-data.sql
     networks:
       - webside-network
     restart: unless-stopped

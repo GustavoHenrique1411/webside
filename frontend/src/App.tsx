@@ -17,6 +17,9 @@ import Configuracoes from "./pages/admin/Configuracoes";
 import Perfil from "./pages/admin/Perfil";
 import ProtectedRoute from "./components/ProtectedRoute";
 import NotFound from "./pages/NotFound";
+import SobreNos from "./pages/sobre-nos";
+import Privacidade from "./pages/privacidade";
+import ContatosSuporte from "./pages/ContatosSuporte";
 
 const queryClient = new QueryClient();
 
@@ -26,9 +29,12 @@ const App = () => (
       <TooltipProvider>
         <AuthProvider>
           <NotificationProvider>
-            <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+            <BrowserRouter>
               <Routes>
               <Route path="/" element={<Index />} />
+              <Route path="/sobre-nos" element={<SobreNos />} />
+              <Route path="/privacidade" element={<Privacidade />} />
+              <Route path="/contatos-suporte" element={<ContatosSuporte />} />
               <Route path="/login" element={<Login />} />
               <Route
                 path="/admin/dashboard"

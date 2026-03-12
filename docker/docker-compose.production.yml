@@ -14,12 +14,12 @@ services:
     restart: always
     environment:
       - NODE_ENV=production
-      # Use secure values from environment
-      - DB_HOST=${DB_HOST}
-      - DB_USER=${DB_USER}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - DB_NAME=${DB_NAME}
-      - JWT_SECRET=${JWT_SECRET}
+      # Use external Hostgator database
+      - DB_HOST=${DB_HOST:-162.241.2.103}
+      - DB_USER=${DB_USER:-websid23_dev}
+      - DB_PASSWORD=${DB_PASSWORD:-Web@132435*}
+      - DB_NAME=${DB_NAME:-websid23_erp}
+      - JWT_SECRET=${JWT_SECRET:-your-super-secret-jwt-key-change-in-production}
       - PORT=3002
     deploy:
       resources:

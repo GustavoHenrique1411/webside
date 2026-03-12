@@ -42,7 +42,7 @@ const Login: React.FC = () => {
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
             <img
-              src="https://www.websidesistemas.com.br/imagens/logo_webside.png"
+              src="/logo_webside.png"
               alt="Webside Sistemas"
               className="h-12 w-auto object-contain"
             />

@@ -28,12 +28,12 @@ const App = () => (
       <TooltipProvider>
         <AuthProvider>
           <NotificationProvider>
-            <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-<Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/sobre-nos" element={<SobreNos />} />
-              <Route path="/politica-de-privacidade" element={<Privacidade />} />
-              <Route path="/login" element={<Login />} />
+            <BrowserRouter>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/sobre-nos" element={<SobreNos />} />
+                <Route path="/privacidade" element={<Privacidade />} />
+                <Route path="/login" element={<Login />} />
               <Route
                 path="/admin/dashboard"
                 element={
