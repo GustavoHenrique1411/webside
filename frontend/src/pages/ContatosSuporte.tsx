@@ -21,17 +21,15 @@ export default function ContatosSuporte() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
 // Function to open chat - Opens helpdesk page in new tab
-  const openChat = () => {
-    // Open helpdesk in a new window/popup (no script needed)
-    window.open('https://helpdesk.websidesistemas.com.br/', '_blank', 'width=500,height=600,scrollbars=yes');
-  };
+
+
 
   return (
     <div className="min-h-screen text-[#020234] bg-white">
       <header className="sticky top-0 z-50 shadow-sm bg-[#020234]">
         <div className="mx-auto max-w-7xl px-4 py-3 flex items-center justify-between">
           <Link to="/" aria-label="Ir para Home">
-            <img src="/webside-logo-cabecalho.png" alt="Logo Webside Sistemas" className="h-11 w-auto object-contain" />
+            <img src="/webside-logo-cabecalho.png" alt="Logo Webside Sistemas" className="h-6 w-auto object-contain" />
           </Link>
           <nav className="hidden md:flex items-center gap-6 text-white">
             <Link to="/" className="hover:text-[#04A6F9]">Home</Link>
@@ -88,9 +86,11 @@ export default function ContatosSuporte() {
             </a>
 
             {/* Chat Online */}
-            <button 
-              onClick={openChat}
-              className="group rounded-2xl bg-[#04A6F9] p-8 text-white hover:bg-[#0284c7] transition-all hover:scale-[1.02] hover:shadow-2xl cursor-pointer"
+            <a 
+              href="/chat"
+              target="_blank"
+              rel="noreferrer"
+              className="group rounded-2xl bg-[#04A6F9] p-8 text-white hover:bg-[#0284c7] transition-all hover:scale-[1.02] hover:shadow-2xl"
             >
               <div className="flex items-center gap-4">
                 <div className="h-16 w-16 rounded-full bg-white/20 flex items-center justify-center">
@@ -102,7 +102,7 @@ export default function ContatosSuporte() {
                 </div>
               </div>
               <p className="mt-4 text-white/80 text-sm">Atendimento em tempo real</p>
-            </button>
+            </a>
           </div>
 
           {/* Telefones Fixos */}
@@ -135,7 +135,7 @@ export default function ContatosSuporte() {
 
           {/* Filiais */}
           <div className="mt-10">
-            <h2 className="text-2xl font-bold text-white mb-6 text-center">Nossas Filiais</h2>
+            <h2 className="text-2xl font-bold text-white mb-6 text-center">Filiais WEBSIDE em 3 estados - Clique para ver no mapa</h2>
             <div className="grid md:grid-cols-3 gap-4">
               <a 
                 href={maps.mg}

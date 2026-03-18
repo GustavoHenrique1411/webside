@@ -28,7 +28,7 @@ export default function PrivacidadePage() {
       <header className="sticky top-0 z-50 bg-[#020234] text-white shadow-md">
         <div className="mx-auto max-w-7xl px-4 py-3 flex items-center justify-between">
           <Link to="/">
-            <img src="/webside-logo-cabecalho.png" alt="Webside Sistemas" className="h-11 w-auto" />
+            <img src="/webside-logo-cabecalho.png" alt="Webside Sistemas" className="h-6 w-auto" />
           </Link>
           <nav className="hidden md:flex items-center gap-6">
             <Link to="/">Home</Link>
@@ -326,7 +326,7 @@ export default function PrivacidadePage() {
           </div>
           <div><h5 className="font-semibold mb-3">Navegação</h5><ul className="space-y-2 text-white/80"><li><Link to="/">Home</Link></li><li><a href="/#solucoes">Soluções</a></li><li><Link to="/sobre-nos">Sobre Nós</Link></li><li><a href="/#suporte">Suporte</a></li><li><a href="/#contato">Contato</a></li></ul></div>
           <div><h5 className="font-semibold mb-3">Soluções</h5><ul className="space-y-2 text-white/80"><li>WP PDV</li><li>WP Mobile</li><li>WP Frota</li><li>WP Dashboard</li><li>WP PIX</li><li>WP I.A</li></ul></div>
-          <div><h5 className="font-semibold mb-3">Filiais + Legal</h5><ul className="space-y-2 text-white/80"><li><a href={maps.mg} target="_blank" rel="noreferrer">🗺️ Filial Minas Gerais</a></li><li><a href={maps.sp} target="_blank" rel="noreferrer">🗺️ Filial São Paulo</a></li><li><a href={maps.go} target="_blank" rel="noreferrer">🗺️ Filial Goiás</a></li><li><Link to="/privacidade">Política de Privacidade</Link></li></ul></div>
+<li><a href="/privacidade" target="_blank" rel="noreferrer">Política de Privacidade</a></li>
         </div>
         <div className="text-center py-5 border-t border-white/10 text-sm text-white/70">Copyright © 2011-2026 | Webside Consultoria e Sistemas Ltda — Todos os direitos reservados — CNPJ: 35.277.090/0001-47</div>
       </footer>

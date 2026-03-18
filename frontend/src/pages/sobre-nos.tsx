@@ -1,6 +1,7 @@
+import React, { useState } from 'react';
+import Header from "../components/Header";
 import { Link } from "react-router-dom";
-import { Facebook, Instagram, Linkedin, Menu, MessageCircle, X, Star, Users, Award, MapPin, Rocket, Handshake, Eye, Shield, TrendingUp, Target } from "lucide-react";
-import { useState } from "react";
+import { Facebook, Instagram, Linkedin, MessageCircle, Star, Users, Award, MapPin, Rocket, Handshake, Eye, Shield, TrendingUp, Target, X } from "lucide-react";
 
 const maps = {
   mg: "https://maps.app.goo.gl/1S21EcYTbVNEjmji7",
@@ -8,53 +9,27 @@ const maps = {
   go: "https://maps.app.goo.gl/1GwBqHWqea23T9Vt8",
 };
 
-const historyContent = `A Webside Sistemas nasceu com o propósito de transformar a gestão de postes de combustíveis por meio da tecnologia. Atuamos para oferecer soluções eficazes, promover transparência e garantir controle completo, sempre com foco em proporcionar a melhor experiência ao revendedor.
+const historyContent = `A Webside Sistemas nasceu com o propósito de transformar a gestão de postos de combustíveis por meio da tecnologia. Atuamos para oferecer soluções eficazes, promover transparência e garantir controle completo, sempre com foco em proporcionar a melhor experiência ao revendedor.
 
-Nosso CEO, Bruno Tardelli, iniciou sua trajetória na gestão de postes de combustíveis em Minas Gerais. Em 2009, foi convidado a atuar no setor de suporte a empresas, graças ao conhecimento adquirido no uso de ferramentas de gestão. Essa experiência revelou uma realidade importante: embora os sistemas estivessem disponíveis, muitas vezes a informação não chegava de forma clara ao operador de posto, que não conseguia aproveitar todo o potencial das soluções contratadas.
+Nosso CEO, Bruno Tardelli, iniciou sua trajetória na gestão de postos de combustíveis em Minas Gerais. Em 2009, foi convidado a atuar no setor de suporte a empresas, graças ao conhecimento adquirido no uso de ferramentas de gestão. Essa experiência revelou uma realidade importante: embora os sistemas estivessem disponíveis, muitas vezes a informação não chegava de forma clara ao operador de posto, que não conseguia aproveitar todo o potencial das soluções contratadas.
 
 Dessa percepção nasceu a Webside Consultoria e Sistemas, com o sistema WEBPOSTO. A empresa foi criada para identificar necessidades reais e apresentar soluções práticas, desenvolvidas por quem entende o dia a dia do operador de posto e domina a tecnologia de gestão.
 
 Com o tempo, reunimos uma equipe de especialistas altamente capacitados, que combinam conhecimento prático e técnico em implementação, treinamento, consultoria e suporte. Essa união de experiência e dedicação nos permite entregar soluções personalizadas, que impulsionam o crescimento e a inovação no setor de combustíveis.
 
-Na Webside Sistemas, acreditamos que desafios são oportunidades. Nossa paixão pela tecnologia e pelo setor nos motiva a transformar obstáculos em conquistas, sempre com o objetivo de fortalecer o revendedor e elevar o padrão de gestão de postes de combustíveis no Brasil.
+Na Webside Sistemas, acreditamos que desafios são oportunidades. Nossa paixão pela tecnologia e pelo setor nos motiva a transformar obstáculos em conquistas, sempre com o objetivo de fortalecer o revendedor e elevar o padrão de gestão de postos de combustíveis no Brasil.
 
 Vamos crescer juntos?`;
 
 const whatsappComercial = "https://wa.me/5511988934345?text=Venho%20pelo%20site%2C%20quero%20saber%20mais%20e%20tenho%20um%20CUPOM%20DESCONTO%20WSSITE17031987";
 
 export default function SobreNosPage() {
-  const [mobileOpen, setMobileOpen] = useState(false);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
 
   return (
     <div className="min-h-screen bg-white text-[#020234]">
-      <header className="sticky top-0 z-50 bg-[#020234] text-white shadow-md">
-        <div className="mx-auto max-w-7xl px-4 py-3 flex items-center justify-between">
-          <Link to="/">
-            <img src="/webside-logo-cabecalho.png" alt="Webside Sistemas" className="h-11 w-auto" />
-          </Link>
-          <nav className="hidden md:flex items-center gap-6">
-            <Link to="/">Home</Link>
-            <Link to="/#solucoes">Soluções</Link>
-            <Link to="/sobre-nos">Sobre Nós</Link>
-            <Link to="/#suporte">Suporte</Link>
-            <Link to="/#contato" className="rounded-full bg-[#04A6F9] px-5 py-2">Fale com Especialista</Link>
-          </nav>
-          <button className="md:hidden" onClick={() => setMobileOpen((v) => !v)}>{mobileOpen ? <X /> : <Menu />}</button>
-        </div>
-        {mobileOpen && (
-          <div className="md:hidden px-4 pb-4 bg-[#020234] border-t border-white/10">
-            <div className="flex flex-col gap-2 pt-3">
-              <Link to="/" className="py-2">Home</Link>
-              <Link to="/#solucoes" className="py-2">Soluções</Link>
-              <Link to="/sobre-nos" className="py-2">Sobre Nós</Link>
-              <Link to="/#suporte" className="py-2">Suporte</Link>
-              <Link to="/#contato" className="py-2 text-[#04A6F9]">Contato</Link>
-            </div>
-          </div>
-        )}
-      </header>
-
+      <Header />
+      
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-[#020234] to-[#04176b] text-white py-20">
         <div className="mx-auto max-w-7xl px-4 text-center">
@@ -65,7 +40,7 @@ export default function SobreNosPage() {
           </div>
           <h1 className="text-4xl md:text-5xl font-bold">Sobre a Webside Sistemas</h1>
           <p className="mt-4 text-white/85 text-lg max-w-2xl mx-auto">Desde 2011 transformando a gestão de postos de combustíveis com tecnologia, consultoria e suporte especializado.</p>
-          <p className="mt-2 text-[#04A6F9] font-semibold">Software líder de mercado | +14 anos de experiência</p>
+<p className="mt-2 text-[#04A6F9] font-semibold">Software líder de mercado | +15 anos de experiência</p>
         </div>
       </section>
 
@@ -79,6 +54,13 @@ export default function SobreNosPage() {
               </div>
               <p className="text-4xl font-bold text-[#04A6F9]">+14</p>
               <p className="text-white/80">Anos de experiência</p>
+            </div>
+            <div className="rounded-2xl bg-[#020234] text-white p-6 text-center shadow-xl">
+              <div className="w-14 h-14 mx-auto mb-3 rounded-full bg-[#04A6F9]/20 flex items-center justify-center">
+                <Award className="w-7 h-7 text-[#04A6F9]" />
+              </div>
+              <p className="text-4xl font-bold text-[#04A6F9]">+500</p>
+              <p className="text-white/80">Cases de sucesso</p>
             </div>
             <div className="rounded-2xl bg-[#020234] text-white p-6 text-center shadow-xl">
               <div className="w-14 h-14 mx-auto mb-3 rounded-full bg-[#04A6F9]/20 flex items-center justify-center">
@@ -277,7 +259,7 @@ export default function SobreNosPage() {
       {/* Filiais */}
       <section className="py-16 bg-[#f0f4f8]">
         <div className="mx-auto max-w-7xl px-4">
-          <h2 className="text-3xl font-bold text-center mb-4">Nossas Filiais</h2>
+          <h2 className="text-3xl font-bold text-center mb-4">Filiais WEBSIDE em 3 estados - Clique para ver no mapa</h2>
           <p className="text-center text-[#020234]/70 mb-8">Atendimento presencial em 3 estados brasileiros</p>
           <div className="grid md:grid-cols-3 gap-6">
             <a href={maps.mg} target="_blank" rel="noreferrer" className="group rounded-2xl bg-white p-6 text-center hover:bg-[#020234] hover:text-white transition-all shadow-lg hover:shadow-xl">
@@ -363,7 +345,7 @@ export default function SobreNosPage() {
               <li><a href={maps.mg} target="_blank" rel="noreferrer">🗺️ Filial Minas Gerais</a></li>
               <li><a href={maps.sp} target="_blank" rel="noreferrer">🗺️ Filial São Paulo</a></li>
               <li><a href={maps.go} target="_blank" rel="noreferrer">🗺️ Filial Goiás</a></li>
-              <li><Link to="/privacidade">Política de Privacidade</Link></li>
+              <li><Link to="/privacidade" target="_blank" rel="noreferrer">Política de Privacidade</Link></li>
             </ul>
           </div>
         </div>

@@ -1,0 +1,259 @@
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat- Websisde Sistemas </title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            background: #0d1214;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .floating-window {
+            position: absolute;
+            width: 480px;
+            height: 700px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(73, 168, 251, 0.4);
+            border: 2px solid #49a8fb;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            resize: both;
+            min-width: 320px;
+            min-height: 500px;
+            z-index: 1000;
+            /* Inicialmente centralizamos via JS, então não colocamos top/left fixos */
+        }
+
+        .window-header {
+            background: #0d1214;
+            color: white;
+            padding: 16px 20px;
+            cursor: move;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 3px solid #49a8fb;
+        }
+
+        .window-header h3 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #49a8fb;
+            margin: 0;
+        }
+
+        .window-header p {
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.8);
+            margin: 2px 0 0 0;
+        }
+
+        .window-controls {
+            display: flex;
+            gap: 12px;
+        }
+
+        .window-controls button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.4rem;
+            cursor: pointer;
+            padding: 0 6px;
+            line-height: 1;
+            transition: opacity 0.2s;
+        }
+
+        .window-controls button:hover {
+            opacity: 0.7;
+        }
+
+        .chat-area {
+            flex: 1;
+            background: white;
+            overflow: hidden;
+        }
+
+        #chat-container {
+            width: 100%;
+            height: 100%;
+        }
+
+        #chat-container iframe {
+            width: 100% !important;
+            height: 100% !important;
+            border: none !important;
+            background: white;
+        }
+
+        .ti-flux-chat-icon,
+        [class*="ti-flux"][style*="fixed"] {
+            display: none !important;
+            visibility: hidden !important;
+            pointer-events: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="floating-window" id="floatingWindow">
+        <div class="window-header" id="windowHeader">
+            <div>
+                <h3>💬 Websisde Sistemas</h3>
+                <p>Como podemos te ajudar?</p>
+            </div>
+            <div class="window-controls">
+                <button id="minimizeBtn">🗕</button>
+                <button id="closeBtn">🗙</button>
+            </div>
+        </div>
+        <div class="chat-area">
+            <div id="chat-container"></div>
+        </div>
+    </div>
+
+    <script>
+        const floatingWindow = document.getElementById('floatingWindow');
+        const header = document.getElementById('windowHeader');
+        let isDragging = false;
+        let offsetX, offsetY;
+
+        // Função para centralizar a janela na tela
+        function centralizarJanela() {
+            const winWidth = floatingWindow.offsetWidth;
+            const winHeight = floatingWindow.offsetHeight;
+            const left = (window.innerWidth - winWidth) / 2;
+            const top = (window.innerHeight - winHeight) / 2;
+            floatingWindow.style.left = left + 'px';
+            floatingWindow.style.top = top + 'px';
+        }
+
+        // Centraliza ao carregar a página
+        window.addEventListener('load', centralizarJanela);
+
+        // Centraliza ao redimensionar a janela do navegador (opcional, mas bom para manter centralizado)
+        window.addEventListener('resize', centralizarJanela);
+
+        // ----- Arrastar -----
+        header.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            offsetX = e.clientX - floatingWindow.offsetLeft;
+            offsetY = e.clientY - floatingWindow.offsetTop;
+            floatingWindow.style.cursor = 'grabbing';
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            let left = e.clientX - offsetX;
+            let top = e.clientY - offsetY;
+
+            // Limites
+            left = Math.max(0, Math.min(window.innerWidth - floatingWindow.offsetWidth, left));
+            top = Math.max(0, Math.min(window.innerHeight - floatingWindow.offsetHeight, top));
+
+            floatingWindow.style.left = left + 'px';
+            floatingWindow.style.top = top + 'px';
+        });
+
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+            floatingWindow.style.cursor = 'default';
+        });
+
+        // ----- Controles -----
+        document.getElementById('minimizeBtn').addEventListener('click', () => {
+            if (floatingWindow.style.height !== '60px') {
+                floatingWindow.dataset.prevHeight = floatingWindow.style.height || '700px';
+                floatingWindow.style.height = '60px';
+                document.querySelector('.chat-area').style.display = 'none';
+            } else {
+                floatingWindow.style.height = floatingWindow.dataset.prevHeight || '700px';
+                document.querySelector('.chat-area').style.display = 'block';
+            }
+        });
+
+        document.getElementById('closeBtn').addEventListener('click', () => {
+            floatingWindow.style.display = 'none';
+        });
+
+        // ----- Chat Tiflux -----
+        var organization_token = "582a9e7c57d9586f18448ac59facb9d764dbf6b8";
+        var icon_color = "#49a8fb";
+        var init_minimal = true;
+        var show_chat_icon = true;
+
+        var script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.src = 'https://public-assets.tiflux.com/chat_widget.js?organization_token=' + organization_token;
+
+        script.onload = function() {
+            console.log('✅ Chat carregado. Movendo para a janela flutuante...');
+
+            function moverChatParaJanela() {
+                var container = document.getElementById('chat-container');
+                var iframes = document.querySelectorAll('iframe[src*="tiflux"]');
+
+                if (iframes.length > 0) {
+                    var chatIframe = iframes[0];
+
+                    if (!container.contains(chatIframe)) {
+                        container.innerHTML = '';
+                        container.appendChild(chatIframe);
+
+                        chatIframe.style.width = '100%';
+                        chatIframe.style.height = '100%';
+                        chatIframe.style.border = 'none';
+                        chatIframe.style.background = 'white';
+                    }
+
+                    var extras = document.querySelectorAll(
+                        '.ti-flux-chat-icon, div[class*="ti-flux"][style*="fixed"]'
+                    );
+                    extras.forEach(el => {
+                        if (el.tagName !== 'IFRAME' && !container.contains(el)) {
+                            el.remove();
+                        }
+                    });
+
+                    return true;
+                }
+                return false;
+            }
+
+            if (!moverChatParaJanela()) {
+                var tentativas = 0;
+                var maxTentativas = 30;
+                var intervalo = setInterval(() => {
+                    if (moverChatParaJanela() || tentativas >= maxTentativas) {
+                        clearInterval(intervalo);
+                    }
+                    tentativas++;
+                }, 500);
+            }
+
+            var observer = new MutationObserver(() => {
+                moverChatParaJanela();
+            });
+            observer.observe(document.body, { childList: true, subtree: true });
+        };
+
+        document.head.appendChild(script);
+    </script>
+</body>
+</html>

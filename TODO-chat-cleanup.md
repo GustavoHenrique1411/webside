@@ -1,0 +1,2 @@
+# TODO: Chat Page Cleanup\n## Steps:\n1. [x] Edit frontend/src/pages/Chat.tsx: Remove custom form and Tiflux JS script loading. ✅\n2. [x] Replace with styled container containing the provided Tiflux iframe. ✅\n3. [ ] Test /chat route: verify no <header class="chat__clearfix"> visible, iframe loads in container.\n4. [ ] Remove Tiflux script from frontend/index.html if header still appears globally.\n5. [ ] Mark complete and attempt_completion.
+

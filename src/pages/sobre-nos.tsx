@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Facebook, Instagram, Linkedin, Menu, MessageCircle, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const maps = {
   mg: "https://maps.app.goo.gl/1S21EcYTbVNEjmji7",
@@ -11,19 +11,27 @@ const maps = {
 export default function SobreNosPage() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
+
+
   return (
     <div className="min-h-screen bg-white text-[#020234]">
       <header className="sticky top-0 z-50 bg-[#020234] text-white shadow-md">
         <div className="mx-auto max-w-7xl px-4 py-3 flex items-center justify-between">
           <Link to="/">
-            <img src="/webside-cabecalho.png" alt="Webside Sistemas" className="h-11 w-auto" />
+className="h-[2.75rem] w-auto scale-50 origin-left"
           </Link>
           <nav className="hidden md:flex items-center gap-6">
             <Link to="/">Home</Link>
-            <Link to="/#solucoes">Soluções</Link>
-            <Link to="/sobre-nos">Sobre Nós</Link>
-            <Link to="/#suporte">Suporte</Link>
-            <Link to="/#contato" className="rounded-full bg-[#04A6F9] px-5 py-2">Fale com Especialista</Link>
+            <Link to="/parceiros">Parceiros e Integrações</Link>
+            <Link to="/sobre-nos">Sobre nós</Link>
+            <Link to="/blog">Blog</Link>
+            <button className="bg-white text-[#020234] px-6 py-2 rounded-full font-semibold hover:bg-gray-100 transition-all">Fale com especialista</button>
+            <div className="relative">
+              <button className="flex items-center gap-1 hover:text-[#04A6F9] transition-colors">
+                Contatos
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+              </button>
+            </div>
           </nav>
           <button className="md:hidden" onClick={() => setMobileOpen((v) => !v)}>{mobileOpen ? <X /> : <Menu />}</button>
         </div>
